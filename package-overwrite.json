@@ -1,0 +1,28 @@
+{
+  "name": "SmartBaseShop",
+  "scripts": {
+    "dev": "echo i m doing nothing",
+    "lint": "echo i m doing nothing",
+    "watch": "echo i m doing nothing",
+    "build": "echo i m doing nothing",
+    "build-with-dev-tools": "echo i m doing nothing",
+    "changelog": "echo i m doing nothing",
+    "commitlint": "echo i m doing nothing",
+    "gulp-build": "echo i m doing nothing",
+    "gulp-watch": "echo i m doing nothing",
+    "gulp-iconset": "echo i m doing nothing",
+    "build-project-vue": "echo i m doing nothing",
+    "build-project-vue-dev-tools": "echo i m doing nothing",
+    "build-product-configurator-vue": "echo i m doing nothing",
+    "build-product-configurator-vue-dev-tools": "echo i m doing nothing",
+    "watch-project-vue": "echo i m doing nothing",
+    "watch-product-configurator-vue": "echo i m doing nothing"
+  },
+  "version": "0.0.1",
+  "dependencies": {
+
+  },
+  "devDependencies": {
+
+  }
+}

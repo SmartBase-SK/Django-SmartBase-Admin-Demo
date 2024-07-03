@@ -1,0 +1,55 @@
+version: "2.2"
+
+services:
+    db:
+        image: postgres:15-alpine
+        volumes:
+            - ./data/pgdata-15:/pgdata
+            - ./data/logs/db:/pg_log
+            - ./db_backups:/db_backups
+    webapp:
+      depends_on:
+        - elasticsearch2
+        - elasticsearch3
+    elasticsearch: &elasticsearch-base
+        build: 
+            context: ./services/elasticsearch
+            args:
+                ELK_VERSION: ${ELK_VERSION}
+        volumes:
+            - ./data/esdata:/usr/share/elasticsearch/data
+            - ./data/esdata_backup:/home/backup
+        restart: "unless-stopped"
+        env_file:
+            - ./config/environment/development.env
+        logging:
+            options:
+                max-size: "1m"
+                max-file: "1"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        mem_limit: 8g
+        environment:
+            - node.name=elasticsearch
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+            - discovery.seed_hosts=elasticsearch2,elasticsearch3
+        networks:
+            - app_net
+    elasticsearch2:
+        <<: *elasticsearch-base
+        volumes:
+            - ./data/esdata2:/usr/share/elasticsearch/data
+        environment:
+            - node.name=elasticsearch2
+            - discovery.seed_hosts=elasticsearch,elasticsearch3
+    elasticsearch3:
+        <<: *elasticsearch-base
+        volumes:
+            - ./data/esdata3:/usr/share/elasticsearch/data
+        environment:
+            - node.name=elasticsearch3
+            - discovery.seed_hosts=elasticsearch,elasticsearch2
+
