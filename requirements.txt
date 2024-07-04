@@ -168,6 +168,7 @@ webencodings==0.5.1
     #   tinycss2
 xlsxwriter==3.2.0
     # via django-smartbase-admin
+gunicorn==20.1.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
