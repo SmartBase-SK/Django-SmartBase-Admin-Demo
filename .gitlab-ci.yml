@@ -38,7 +38,6 @@ deployStaging:
     - source ./smartshop-build-scripts/build_code.sh
     - source ./smartshop-build-scripts/pre_deploy.sh
     - source ./smartshop-build-scripts/deploy_staging.sh
-    - source ./smartshop-build-scripts/build_documentation.sh
   tags:
     - runner
   environment:
