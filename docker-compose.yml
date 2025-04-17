@@ -47,40 +47,6 @@ services:
         networks:
             - app_net
 
-    elasticsearch:
-        build: ./_dev_docker_services/elasticsearch
-        env_file:
-            - .env
-        ports:
-          - "${ES_PORT}:9200"
-        logging:
-            options:
-                max-size: "1m"
-                max-file: "1"
-        ulimits:
-            memlock:
-                soft: -2
-                hard: -2
-        mem_limit: 2g
-        environment:
-            - bootstrap.memory_lock=true
-            - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-            - discovery.type=single-node
-        networks:
-            - app_net
-
-    kibana:
-        image: docker.elastic.co/kibana/kibana:7.17.10
-        logging:
-            options:
-                max-size: "1m"
-                max-file: "1"
-        env_file:
-          - .env
-        ports:
-          - "${KIBANA_PORT}:5601"
-        networks:
-            - app_net
 
     redis:
         build: ./_dev_docker_services/redis

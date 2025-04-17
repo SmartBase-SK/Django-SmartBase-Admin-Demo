@@ -1,19 +1,17 @@
 from django.contrib import admin
 from django_smartbase_admin.admin.site import sb_admin_site
 from .models import Post, Author, Category
-from django_smartbase_admin.admin.admin_base import SBAdmin, SBAdminTableInline
+from django_smartbase_admin.admin.admin_base import SBAdmin, SBAdminTableInline, SBAdminStackedInline, SBAdminTableInlinePaginated, SBAdminGenericTableInline
+
 
 class CategoryInline(SBAdminTableInline):
     model = Post.categories.through
-    verbose_name = "Post"
+    verbose_name = "Category"
+    verbose_name_plural = "Categories"
 
-class PostInline(SBAdminTableInline):
+class PostInline(SBAdminGenericTableInline):
     model = Post
     verbose_name = "Post"
-
-class AuthorInline(SBAdminTableInline):
-    model = Author
-    verbose_name = "Author"
 
 @admin.register(Post, site=sb_admin_site)
 class PostSBAdmin(SBAdmin):
@@ -21,13 +19,10 @@ class PostSBAdmin(SBAdmin):
     sbadmin_list_display = ("title", "published_date", "author")
     sbadmin_fieldsets = [
         (None, {
-            "fields": ["title", "content", "author", "categories"]
+            "fields": ["title", "content", "author"]
         })
     ]
     inlines = [CategoryInline]
-    sbadmin_tabs = {
-        "Post": [None, CategoryInline],
-    }
 
 @admin.register(Author, site=sb_admin_site)
 class AuthorSBAdmin(SBAdmin):
@@ -38,10 +33,6 @@ class AuthorSBAdmin(SBAdmin):
         })
     ]
     inlines = [PostInline]
-    sbadmin_tabs = {
-        "Author": [None, PostInline],
-        "Bio": ["bio", None],
-    }
 
 @admin.register(Category, site=sb_admin_site)
 class CategorySBAdmin(SBAdmin):
@@ -51,6 +42,5 @@ class CategorySBAdmin(SBAdmin):
             "fields": ["name"]
         })
     ]
-    inlines = [CategoryInline]
 
 

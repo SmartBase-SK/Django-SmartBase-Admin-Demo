@@ -10,6 +10,12 @@ class Author(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=100)
 
+    class Meta:
+        app_label = "blog"
+        abstract = False
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+
     def __str__(self):
         return self.name
 
