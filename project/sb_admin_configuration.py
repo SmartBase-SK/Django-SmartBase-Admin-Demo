@@ -15,11 +15,11 @@ config = SBAdminRoleConfiguration(
     default_view=SBAdminMenuItem(view_id="dashboard"),
     menu_items=[
         SBAdminMenuItem(view_id="dashboard", icon="All-application"),
+        SBAdminMenuItem(view_id="blog_category", icon="List-checkbox", label="Categories"),
         SBAdminMenuItem(view_id="blog_post",
                         sub_items=[],
-                        icon="Search"),
-        SBAdminMenuItem(view_id="blog_author", icon="People-top-card"),
-        SBAdminMenuItem(view_id="blog_category", icon="Star", label="Categories")
+                        icon="View-grid-list"),
+        SBAdminMenuItem(view_id="blog_author", icon="People-top-card")
         ],
     registered_views=[
         SBAdminDashboardView(

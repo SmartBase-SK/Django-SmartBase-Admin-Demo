@@ -392,9 +392,9 @@ POST_OFFICE = {
 
 ugettext = lambda s: s
 
-LANGUAGE_CODE = 'sk'
+LANGUAGE_CODE = 'en'
 LANGUAGES = [
-    ('sk', 'Slovak'),
+    ('en', 'English'),
 ]
 
 PARLER_LANGUAGES = {
