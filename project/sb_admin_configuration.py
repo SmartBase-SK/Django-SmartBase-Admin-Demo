@@ -1,44 +1,57 @@
-from django.db.models import F, Count
+from django.db.models import Case, Sum, Count, When
+from django.forms import IntegerField
 from django_smartbase_admin.engine.configuration import SBAdminConfigurationBase, SBAdminRoleConfiguration
-from django_smartbase_admin.engine.dashboard import SBAdminDashboardListWidget, SBAdminDashboardChartWidget
+from django_smartbase_admin.engine.dashboard import SBAdminDashboardListWidget, SBAdminDashboardLineChartWidgetByDate, SBAdminChartAggregateSubWidget
 from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
 from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
-from blog.models import Post, Author
+from django.utils.translation import gettext_lazy as _
 
-class AuthorPostsChartWidget(SBAdminDashboardListWidget):
-    name = "Author Posts"
-    model = Post
-    date_annotate_field = "published_date"
-    sub_widgets = []
+from catalog.models import Product, Purchase
+
+class PurchaseDashboardListWidget(SBAdminDashboardListWidget):
+    ordering = ["-created_at"]
+    name = "Latest Purchases"
+    model = Purchase
+    list_display = ["created_at", "customer_name", "total_price"]
+    list_per_page = 10
+
+def format_total_price(sub_widget, request, value):
+    return f"{value} €"
+class PurchaseChartWidget(SBAdminDashboardLineChartWidgetByDate):
+    name = _("Turnover")
+    model = Purchase
+    date_annotate_field = "created_at"
+    date_resolutions = SBAdminDashboardLineChartWidgetByDate.DateResolutionsOptions
+    sub_widgets = [
+        SBAdminChartAggregateSubWidget(
+            title=_("Total turnover"), aggregate=Sum("total_price"), python_formatter=format_total_price
+        ),
+        SBAdminChartAggregateSubWidget(
+            title=_("Purchase count"), aggregate=Count("id"),
+        ),
+    ]
+
 
 config = SBAdminRoleConfiguration(
     default_view=SBAdminMenuItem(view_id="dashboard"),
     menu_items=[
         SBAdminMenuItem(view_id="dashboard", icon="All-application"),
-        SBAdminMenuItem(view_id="blog_category", icon="List-checkbox", label="Categories"),
-        SBAdminMenuItem(view_id="blog_post",
-                        sub_items=[],
-                        icon="View-grid-list"),
-        SBAdminMenuItem(view_id="blog_author", icon="People-top-card")
-        ],
+        SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="Catalog",
+                        sub_items=[SBAdminMenuItem(view_id="catalog_category"),
+                                   SBAdminMenuItem(view_id="catalog_manufacturer"),
+                                   SBAdminMenuItem(view_id="catalog_product")
+                                   ]
+                        ),
+        SBAdminMenuItem(view_id="catalog_purchase", icon="List-checkbox"),
+
+    ],
     registered_views=[
         SBAdminDashboardView(
             widgets=[
-                SBAdminDashboardListWidget(
-                    name="Posts",
-                    model=Post,
-                    list_display=["title", "published_date"],
-                    list_per_page=10
-                ),
-                SBAdminDashboardChartWidget(
-                    name="Author posts",
-                    model=Author,
-                    x_axis_annotate=F("name"),
-                    y_axis_annotate=Count("post__id"),
-
-                )
+                PurchaseChartWidget(settings=[]),
+                PurchaseDashboardListWidget(),
             ],
-            title="Dashboard",
+            title="Dashboard"
         ),
     ],
 )
