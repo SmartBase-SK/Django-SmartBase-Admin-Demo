@@ -59,6 +59,7 @@ class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
 class ProductSBAdmin(SBAdmin):
     model = Product
     inlines = [ProductImageInline]
+
     sbadmin_fake_inlines = [ProductSameManufacturerInline]
     sbadmin_list_display = (
         "name",
@@ -69,6 +70,17 @@ class ProductSBAdmin(SBAdmin):
     )
     search_fields = ["name", "sku"]
     list_filter = ["is_active"]
+
+    sbadmin_tabs = {
+        "General": [
+            "Appearance",
+            "Base settings"
+        ],
+        "Media": [
+            ProductImageInline,
+        ],
+    }
+
     fieldsets = [
         (
             "Appearance",
@@ -81,7 +93,7 @@ class ProductSBAdmin(SBAdmin):
             },
         ),
         (
-            _("Base settings"),
+            "Base settings",
             {
                 "classes": [DETAIL_STRUCTURE_RIGHT_CLASS],
                 "fields": [
