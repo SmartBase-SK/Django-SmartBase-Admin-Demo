@@ -1,12 +1,25 @@
-from django.db.models import Case, Sum, Count, When
-from django.forms import IntegerField
 from django_smartbase_admin.engine.configuration import SBAdminConfigurationBase, SBAdminRoleConfiguration
-from django_smartbase_admin.engine.dashboard import SBAdminDashboardListWidget, SBAdminDashboardLineChartWidgetByDate, SBAdminChartAggregateSubWidget
-from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
-from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
+
+from catalog.models import Purchase
+
+from django import forms
+from django.db.models import F, Sum, Count, When
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import Product, Purchase
+from django_smartbase_admin.admin.widgets import SBAdminRadioWidget
+from django_smartbase_admin.engine import const
+from django_smartbase_admin.engine.configuration import (
+    SBAdminConfigurationBase,
+    SBAdminRoleConfiguration,
+)
+from django_smartbase_admin.engine.dashboard import (
+    SBAdminDashboardLineChartWidgetByDate,
+    SBAdminDashboardListWidget,
+    SBAdminChartAggregateSubWidget,
+)
+from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
+from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
+
 
 class PurchaseDashboardListWidget(SBAdminDashboardListWidget):
     ordering = ["-created_at"]
@@ -15,8 +28,11 @@ class PurchaseDashboardListWidget(SBAdminDashboardListWidget):
     list_display = ["created_at", "customer_name", "total_price"]
     list_per_page = 10
 
+
 def format_total_price(sub_widget, request, value):
     return f"{value} €"
+
+
 class PurchaseChartWidget(SBAdminDashboardLineChartWidgetByDate):
     name = _("Turnover")
     model = Purchase
@@ -32,31 +48,30 @@ class PurchaseChartWidget(SBAdminDashboardLineChartWidgetByDate):
     ]
 
 
-config = SBAdminRoleConfiguration(
-    default_view=SBAdminMenuItem(view_id="dashboard"),
-    menu_items=[
-        SBAdminMenuItem(view_id="dashboard", icon="All-application"),
-        SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="Catalog",
-                        sub_items=[SBAdminMenuItem(view_id="catalog_category"),
-                                   SBAdminMenuItem(view_id="catalog_manufacturer"),
-                                   SBAdminMenuItem(view_id="catalog_product")
-                                   ]
-                        ),
-        SBAdminMenuItem(view_id="catalog_purchase", icon="List-checkbox"),
-
-    ],
-    registered_views=[
-        SBAdminDashboardView(
-            widgets=[
-                PurchaseChartWidget(settings=[]),
-                PurchaseDashboardListWidget(),
-            ],
-            title="Dashboard"
-        ),
-    ],
-)
-
 
 class SBAdminConfiguration(SBAdminConfigurationBase):
     def get_configuration_for_roles(self, user_roles):
+        config = SBAdminRoleConfiguration(
+            default_view=SBAdminMenuItem(view_id="dashboard"),
+            menu_items=[
+                SBAdminMenuItem(view_id="dashboard", icon="All-application"),
+                SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="Catalog",
+                                sub_items=[SBAdminMenuItem(view_id="catalog_category"),
+                                           SBAdminMenuItem(view_id="catalog_manufacturer"),
+                                           SBAdminMenuItem(view_id="catalog_product")
+                                           ]
+                                ),
+                SBAdminMenuItem(view_id="catalog_purchase", icon="List-checkbox"),
+
+            ],
+            registered_views=[
+                SBAdminDashboardView(
+                    widgets=[
+                        PurchaseChartWidget(settings=[]),
+                        PurchaseDashboardListWidget(),
+                    ],
+                    title="Dashboard"
+                ),
+            ],
+        )
         return config
