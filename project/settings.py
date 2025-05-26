@@ -3,7 +3,7 @@ from sbcore.settings import *
 INSTALLED_APPS = (
     [
         "project",
-        "catalog.apps.CatalogConfig",
+        "project.catalog.apps.CatalogConfig",
     ]
     + COMMON_INSTALLED_APPS
 )

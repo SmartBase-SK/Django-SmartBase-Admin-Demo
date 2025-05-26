@@ -1,6 +1,6 @@
 from django_smartbase_admin.engine.configuration import SBAdminConfigurationBase, SBAdminRoleConfiguration
 
-from catalog.models import Purchase
+from project.catalog.models import Purchase
 
 from django import forms
 from django.db.models import F, Sum, Count, When
