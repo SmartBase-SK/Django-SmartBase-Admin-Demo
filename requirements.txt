@@ -97,6 +97,8 @@ easy-thumbnails[svg]==2.8.5
     # via
     #   django-filer
     #   django-smartbase-admin
+gunicorn==20.1.0
+    # via project (pyproject.toml)
 idna==3.6
     # via requests
 kombu==5.3.5
