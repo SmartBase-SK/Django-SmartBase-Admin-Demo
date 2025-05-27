@@ -179,5 +179,3 @@ class PurchaseSBAdmin(SBAdmin):
             },
         ),
     ]
-
-    readonly_fields = ["created_at"]
