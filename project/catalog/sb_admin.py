@@ -10,7 +10,7 @@ from django_smartbase_admin.engine.const import DETAIL_STRUCTURE_RIGHT_CLASS
 from django_smartbase_admin.engine.fake_inline import SBAdminFakeInlineMixin
 from django_smartbase_admin.engine.field import SBAdminField
 
-from .models import Product, Category, Manufacturer, ProductImage, Purchase
+from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem
 
 
 class ProductImageInline(SBAdminTableInline):
@@ -146,10 +146,16 @@ class ManufacturerSBAdmin(SBAdmin):
         )
     ]
 
+class PurchaseItemInline(SBAdminTableInline):
+    model = PurchaseItem
+    fields = ("product", "price")
+    extra = 1
+
 
 @admin.register(Purchase, site=sb_admin_site)
 class PurchaseSBAdmin(SBAdmin):
     model = Purchase
+    inlines = [PurchaseItemInline]
 
     sbadmin_list_display = (
         "customer_name",
