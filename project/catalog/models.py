@@ -59,7 +59,7 @@ class Purchase(models.Model):
     total_price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("Total Price")
     )
-    created_at = models.DateTimeField(verbose_name=_("Created At"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
 
     class Meta:
         verbose_name = _("Purchase")
