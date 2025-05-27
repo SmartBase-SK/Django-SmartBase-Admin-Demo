@@ -26,6 +26,7 @@ def status_formatter(object_id, value):
         label = "❌"
     return f'<span>{label}</span>'
 
+
 class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     model = Product
     fields = ["name", "is_current_product"]
@@ -33,6 +34,7 @@ class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     can_delete = False
     verbose_name = "Product from the same manufacturer"
     verbose_name_plural = "Products from the same manufacturer"
+
     def has_add_permission(self, request, obj=None):
         return False
 
@@ -70,7 +72,13 @@ class ProductSBAdmin(SBAdmin):
     )
     search_fields = ["name", "sku"]
     list_filter = ["is_active"]
-
+    sbadmin_list_view_config = [
+        {
+            "name": _("Inactive"),
+            "url_params": {
+                "filterData": {"is_active": False}
+            },
+        }]
     sbadmin_tabs = {
         "General": [
             "Appearance",
@@ -137,6 +145,7 @@ class ManufacturerSBAdmin(SBAdmin):
             },
         )
     ]
+
 
 @admin.register(Purchase, site=sb_admin_site)
 class PurchaseSBAdmin(SBAdmin):
