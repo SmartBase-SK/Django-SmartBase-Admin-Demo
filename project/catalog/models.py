@@ -84,3 +84,14 @@ class Purchase(models.Model):
                     total_price=round(random.uniform(20, 200), 2),
                     created_at=date,
                 )
+class PurchaseItem(models.Model):
+    purchase = models.ForeignKey(Purchase, related_name="items", on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        verbose_name = _("Purchase Item")
+        verbose_name_plural = _("Purchase Items")
+
+    def __str__(self):
+        return f"{self.product.name} – {self.price} €"
