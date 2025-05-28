@@ -48,22 +48,32 @@ class PurchaseChartWidget(SBAdminDashboardLineChartWidgetByDate):
     ]
 
 
-
 class SBAdminConfiguration(SBAdminConfigurationBase):
     def get_configuration_for_roles(self, user_roles):
-        config = SBAdminRoleConfiguration(
-            default_view=SBAdminMenuItem(view_id="dashboard"),
-            menu_items=[
-                SBAdminMenuItem(view_id="dashboard", icon="All-application"),
-                SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="Catalog",
-                                sub_items=[SBAdminMenuItem(view_id="catalog_category"),
-                                           SBAdminMenuItem(view_id="catalog_manufacturer"),
-                                           SBAdminMenuItem(view_id="catalog_product")
-                                           ]
-                                ),
-                SBAdminMenuItem(view_id="catalog_purchase", icon="List-checkbox"),
+        default_view = SBAdminMenuItem(view_id="dashboard")
+        menu_items = [
+            SBAdminMenuItem(view_id="dashboard", icon="All-application"),
+            SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="Catalog",
+                            sub_items=[SBAdminMenuItem(view_id="catalog_category"),
+                                       SBAdminMenuItem(view_id="catalog_manufacturer"),
+                                       SBAdminMenuItem(view_id="catalog_product")
+                                       ]
+                            ),
+            SBAdminMenuItem(view_id="catalog_purchase", icon="List-checkbox"),
+        ]
 
-            ],
+        # Different menu items with different structure and default view for Editors
+        if "Editors" in list(user_roles):
+            default_view = SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox")
+            menu_items = [
+                SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox"),
+                SBAdminMenuItem(view_id="catalog_category", icon="Tag-one"),
+                SBAdminMenuItem(view_id="catalog_manufacturer", icon="Box"),
+            ]
+
+        config = SBAdminRoleConfiguration(
+            default_view=default_view,
+            menu_items=menu_items,
             registered_views=[
                 SBAdminDashboardView(
                     widgets=[
