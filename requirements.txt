@@ -63,8 +63,10 @@ django-admin-inline-paginator==0.4.0
     # via django-smartbase-admin
 django-celery-results==2.5.1
     # via project (pyproject.toml)
-django-ckeditor==6.7.1
-    # via django-smartbase-admin
+django-ckeditor==6.7.2
+    # via
+    #   django-smartbase-admin
+    #   project (pyproject.toml)
 django-classy-tags==4.1.0
     # via django-sekizai
 django-dynamic-preferences @ git+https://github.com/agateblue/django-dynamic-preferences.git@69f585b793e33de38ec678b5e56491c42ddf6f64
