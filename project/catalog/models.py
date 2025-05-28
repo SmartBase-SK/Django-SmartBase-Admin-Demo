@@ -32,7 +32,9 @@ class Category(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = models.TextField(
+            blank=True, null=True, verbose_name=_("Description")
+        )
     slug = models.SlugField(unique=True)
     sku = models.CharField(max_length=100, unique=True)
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.SET_NULL, null=True, blank=True)
@@ -40,7 +42,27 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
+    netto_weight = models.DecimalField(
+        max_digits=6,
+        blank=True,
+        null=True,
+        decimal_places=3,
+        verbose_name=_("Netto weight (kg)"),
+    )
+    package_dims = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True,
+        verbose_name=_("Package dimensions"),
 
+    )
+    product_dims = models.CharField(
+        max_length=48,
+        blank=True,
+        null=True,
+        verbose_name=_("Product dimensions"),
+
+    )
     def __str__(self):
         return self.name
 
@@ -59,7 +81,7 @@ class Purchase(models.Model):
     total_price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("Total Price")
     )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"))
+    created_at = models.DateTimeField(verbose_name=_("Created At"))
 
     class Meta:
         verbose_name = _("Purchase")

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import F
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_smartbase_admin.admin.admin_base import (
@@ -11,6 +12,7 @@ from django_smartbase_admin.engine.fake_inline import SBAdminFakeInlineMixin
 from django_smartbase_admin.engine.field import SBAdminField
 
 from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem
+from .. import settings
 
 
 class ProductImageInline(SBAdminTableInline):
@@ -68,10 +70,17 @@ class ProductSBAdmin(SBAdmin):
         "sku",
         SBAdminField(name="price", title=_("Price")),
         SBAdminField(name="is_active", title=_("Active"), python_formatter=status_formatter),
-        "manufacturer",
+        SBAdminField(
+            name="manufacturer",
+            title="Manufacturer",
+            annotate=F("manufacturer__name"),
+            filter_field="manufacturer__name",
+        ),
+        "netto_weight",
+        "package_dims",
+        "product_dims",
     )
-    search_fields = ["name", "sku"]
-    list_filter = ["is_active"]
+    list_filter = ["manufacturer"]
     sbadmin_list_view_config = [
         {
             "name": _("Inactive"),
@@ -82,6 +91,7 @@ class ProductSBAdmin(SBAdmin):
     sbadmin_tabs = {
         "General": [
             "Appearance",
+            "Delivery",
             "Base settings"
         ],
         "Media": [
@@ -96,7 +106,16 @@ class ProductSBAdmin(SBAdmin):
                 "fields": [
                     "name",
                     "description",
-                    "price",
+                ]
+            },
+        ),
+        (
+            "Delivery",
+            {
+                "fields": [
+                    ("netto_weight",
+                     "package_dims",
+                     "product_dims",)
                 ]
             },
         ),
@@ -110,6 +129,7 @@ class ProductSBAdmin(SBAdmin):
                     "sku",
                     "categories",
                     "manufacturer",
+                    "price",
                 ],
             },
         ),
@@ -145,6 +165,7 @@ class ManufacturerSBAdmin(SBAdmin):
             },
         )
     ]
+
 
 class PurchaseItemInline(SBAdminTableInline):
     model = PurchaseItem
