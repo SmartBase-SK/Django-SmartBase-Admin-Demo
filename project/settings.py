@@ -13,3 +13,19 @@ ROOT_URLCONF = "project.urls"
 MIDDLEWARE = MIDDLEWARE + [
     'project.middleware.read_only_middleware.ReadOnlyModeMiddleware',
 ]
+if CONTAINER_TYPE != 'celery':
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("POSTGRES_DB"),
+            "USER": os.environ.get("READ_ONLY_POSTGRES_USER"),
+            "PASSWORD": os.environ.get("READ_ONLY_POSTGRES_PASSWORD"),
+            "HOST": DB_HOST,
+            "PORT": os.environ.get("POSTGRES_PORT"),
+            "CONN_MAX_AGE": None if DB_HOST == "pgbouncer" else 60,
+            "DISABLE_SERVER_SIDE_CURSORS": True,
+            "TEST": {
+                "NAME": os.environ.get("POSTGRES_DB"),
+            },
+        }
+    }
