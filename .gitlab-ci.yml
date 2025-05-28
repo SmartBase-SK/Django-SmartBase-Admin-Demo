@@ -25,8 +25,8 @@ deployStaging:
     - STAGING_SERVER=prime.smartbase.sk
     - export AUTH_STRING_OVERRIDE='allow all;'
 
-    - export POSTGRES_USER='readonly_user'
-    - export POSTGRES_PASSWORD='readonly_password'
+    - export POSTGRES_USER=readonly_user
+    - export POSTGRES_PASSWORD=readonly_password
 
     - DEPLOY_SERVER_LOGIN="gitlab@${STAGING_SERVER}"
     - if  [ -n "$BUILD_SCRIPTS_VERSION" ]; then
