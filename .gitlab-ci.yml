@@ -23,6 +23,7 @@ deployStaging:
   stage: deploy
   script:
     - STAGING_SERVER=prime.smartbase.sk
+    - AUTH_STRING_OVERRIDE=""
     - DEPLOY_SERVER_LOGIN="gitlab@${STAGING_SERVER}"
     - if  [ -n "$BUILD_SCRIPTS_VERSION" ]; then
           git clone --depth 1 --single-branch --branch $BUILD_SCRIPTS_VERSION https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop-build-scripts.git;
