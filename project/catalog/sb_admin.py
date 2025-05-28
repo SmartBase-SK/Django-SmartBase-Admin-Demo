@@ -130,10 +130,12 @@ class ProductSBAdmin(SBAdmin):
                     "categories",
                     "manufacturer",
                     "price",
+                    "created",
                 ],
             },
         ),
     ]
+    readonly_fields = ['created']
 
 
 @admin.register(Category, site=sb_admin_site)
