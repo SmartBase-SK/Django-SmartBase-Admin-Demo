@@ -41,7 +41,7 @@ class Product(models.Model):
     categories = models.ManyToManyField(Category, related_name="products", blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Created")
     netto_weight = models.DecimalField(
         max_digits=6,
         blank=True,
