@@ -18,6 +18,13 @@ from django_smartbase_admin.engine.field import SBAdminField
 from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem
 from .. import settings
 
+class CategoryTreeWidget(SBAdminTreeWidget):
+    order_by = ["path"]
+    model = Category
+    @classmethod
+    def get_tree_title(cls, request, item):
+        return item.get("name")
+
 
 class ProductImageInline(SBAdminTableInline):
     model = ProductImage
@@ -153,7 +160,6 @@ class CategorySBAdmin(SBAdmin):
     sbadmin_list_reorder_field = "path"
     ordering = ["path"]
 
-
     # enable this to use tree widget to order categories
     use_tree_ordering = True
     fieldsets = [
@@ -188,7 +194,7 @@ class CategorySBAdmin(SBAdmin):
     def tree_list_json(self, request, modifier, page_size=None):
         action = self.sbadmin_list_action_class(self, request, page_size=999999)
 
-        final_data = SBAdminTreeWidget(order_by=["path"]).get_tree_data(
+        final_data = CategoryTreeWidget.get_tree_data(
             request,
             action.get_data_queryset(),
             values=action.get_data_queryset_values(),
@@ -197,7 +203,7 @@ class CategorySBAdmin(SBAdmin):
 
     def get_extra_context(self, request, extra_context=None):
         extra_context = extra_context or {}
-        extra_context["tree_strings"] = SBAdminTreeWidget(order_by=["path"]).tree_strings
+        extra_context["tree_strings"] = CategoryTreeWidget.tree_strings
         extra_context["tree_json_url"] = self.get_action_url("tree_list_json")
         extra_context["fancytree_filter_settings"] = {"fuzzy": False}
         return extra_context
