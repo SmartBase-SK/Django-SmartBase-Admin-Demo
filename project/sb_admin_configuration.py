@@ -1,12 +1,16 @@
-from project.catalog.models import Purchase
+from django import forms
+from django_smartbase_admin.admin.widgets import SBAdminRadioWidget
+from django_smartbase_admin.engine.field import SBAdminField
 
-from django.db.models import Sum, Count
+from project.catalog.models import Purchase, Domain, BaseDomainModel
+
+from django.db.models import Sum, Count, F
 from django.utils.translation import gettext_lazy as _
 from django_smartbase_admin.engine.configuration import (
     SBAdminRoleConfiguration,
     SBAdminConfigurationBase,
 )
-from django_smartbase_admin.engine.const import FilterVersions
+from django_smartbase_admin.engine.const import FilterVersions, GLOBAL_FILTER_DATA_KEY
 from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
 from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
 from django_smartbase_admin.engine.dashboard import (
@@ -17,11 +21,32 @@ from django_smartbase_admin.engine.dashboard import (
 
 EDITOR_ROLE = "Editors"
 
+
+class GlobalFilterForm(forms.Form):
+    include_all_values_for_empty_fields = ["domain"]
+    domain = forms.ModelChoiceField(
+        queryset=Domain.objects.all(),
+        required=False,
+        blank=True,
+        widget=SBAdminRadioWidget(attrs={"id": "DOMAIN_FILTER"}),
+        empty_label="All domains",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["domain"].label_from_instance = self.label
+
+    @staticmethod
+    def label(obj):
+        return obj.name
+
+
 class PurchaseDashboardListWidget(SBAdminDashboardListWidget):
     ordering = ["-created_at"]
     name = "Latest Purchases"
     model = Purchase
-    list_display = ["created_at", "customer_name", "total_price"]
+    list_display = ["created_at", "customer_name", "total_price", SBAdminField(name="domain", title="Domain", annotate=F("domain__name"))]
     list_per_page = 10
 
 
@@ -69,7 +94,8 @@ editor_menu_items = [
 ]
 
 
-class PurchaseBaseConfiguration(SBAdminRoleConfiguration):
+class BaseConfiguration(SBAdminRoleConfiguration):
+    global_filter_form = GlobalFilterForm
     filters_version = FilterVersions.FILTERS_VERSION_2
     default_view = SBAdminMenuItem(view_id="dashboard")
     registered_views = [
@@ -82,13 +108,33 @@ class PurchaseBaseConfiguration(SBAdminRoleConfiguration):
         ),
     ]
 
+    def restrict_queryset(
+            self,
+            qs,
+            model,
+            request,
+            request_data,
+            global_filter=True,
+            global_filter_data_map=None,
+    ):
+        qs = super().restrict_queryset(
+            qs, model, request, request_data, global_filter, global_filter_data_map
+        )
+        global_filter_map = request.session.get(GLOBAL_FILTER_DATA_KEY)
 
-class AdminPurchaseConfiguration(PurchaseBaseConfiguration):
+        if global_filter_map:
+            domain = global_filter_map.get("domain")
+            if issubclass(model, BaseDomainModel) and domain:
+                qs = qs.filter(domain_id=domain)
+        return qs
+
+
+class AdminConfiguration(BaseConfiguration):
     menu_items = admin_menu_items
     default_view = SBAdminMenuItem(view_id="dashboard")
 
 
-class EditorPurchaseConfiguration(PurchaseBaseConfiguration):
+class EditorConfiguration(BaseConfiguration):
     menu_items = editor_menu_items
     default_view = SBAdminMenuItem(view_id="catalog_product")
 
@@ -97,5 +143,5 @@ class SBAdminConfiguration(SBAdminConfigurationBase):
     def get_configuration_for_roles(self, user_roles):
         user_roles = list(user_roles)
         if EDITOR_ROLE in user_roles:
-            return EditorPurchaseConfiguration()
-        return AdminPurchaseConfiguration()
+            return EditorConfiguration()
+        return AdminConfiguration()

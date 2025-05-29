@@ -4,7 +4,22 @@ import random
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 
-class Manufacturer(models.Model):
+
+class BaseDomainModel(models.Model):
+    domain = models.ForeignKey("Domain", on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class Domain(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class Manufacturer(BaseDomainModel):
     name = models.CharField(max_length=255)
     logo = models.ImageField(upload_to="manufacturers", null=True, blank=True)
 
@@ -12,7 +27,7 @@ class Manufacturer(models.Model):
         return self.name
 
 
-class Category(models.Model):
+class Category(BaseDomainModel):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     image = models.ImageField(upload_to="categories", null=True, blank=True)
@@ -30,11 +45,11 @@ class Category(models.Model):
         return self.name
 
 
-class Product(models.Model):
+class Product(BaseDomainModel):
     name = models.CharField(max_length=255)
     description = models.TextField(
-            blank=True, null=True, verbose_name=_("Description")
-        )
+        blank=True, null=True, verbose_name=_("Description")
+    )
     slug = models.SlugField(unique=True)
     sku = models.CharField(max_length=100, unique=True)
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.SET_NULL, null=True, blank=True)
@@ -63,11 +78,12 @@ class Product(models.Model):
         verbose_name=_("Product dimensions"),
 
     )
+
     def __str__(self):
         return self.name
 
 
-class ProductImage(models.Model):
+class ProductImage(BaseDomainModel):
     product = models.ForeignKey(Product, related_name="images", on_delete=models.CASCADE)
     image = models.ImageField(upload_to="products")
     alt_text = models.CharField(max_length=255, blank=True)
@@ -76,7 +92,7 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name}"
 
 
-class Purchase(models.Model):
+class Purchase(BaseDomainModel):
     customer_name = models.CharField(max_length=255, verbose_name=_("Customer Name"))
     total_price = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name=_("Total Price")
@@ -106,7 +122,9 @@ class Purchase(models.Model):
                     total_price=round(random.uniform(20, 200), 2),
                     created_at=date,
                 )
-class PurchaseItem(models.Model):
+
+
+class PurchaseItem(BaseDomainModel):
     purchase = models.ForeignKey(Purchase, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     price = models.DecimalField(max_digits=10, decimal_places=2)
