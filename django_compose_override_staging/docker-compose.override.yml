@@ -7,3 +7,21 @@ services:
             - ./data/pgdata-15:/pgdata
             - ./data/logs/db:/pg_log
             - ./db_backups:/db_backups
+    django-pgbouncer:
+      restart: "unless-stopped"
+      image: brainsam/pgbouncer:latest
+      env_file:
+        - ./config/environment/development.env
+      networks:
+        - app_net
+      expose:
+        - "5433"
+      environment:
+        - LISTEN_PORT=5432
+        - POOL_MODE=${PG_BOUNCER_POOL_MODE}
+        - DB_USER=readonly_user
+        - DB_PASSWORD=readonly_password
+      logging:
+        options:
+          max-size: "2m"
+          max-file: "5"
