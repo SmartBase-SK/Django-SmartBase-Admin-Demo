@@ -8,18 +8,24 @@ from django.utils.text import slugify
 from django.utils.timezone import make_aware
 
 from project.catalog.models import (
+    Domain,
     Manufacturer,
     Category,
     Product,
     ProductImage,
     Purchase,
     PurchaseItem,
-    Domain,
 )
 
 
+def generate_image_file():
+    image = Image.new("RGB", (100, 100), (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    return ContentFile(buffer.getvalue(), name="dummy.png")
+
+
 def generate_dummy():
-    # Clean up
     PurchaseItem.objects.all().delete()
     Purchase.objects.all().delete()
     ProductImage.objects.all().delete()
@@ -28,7 +34,6 @@ def generate_dummy():
     Manufacturer.objects.all().delete()
     Domain.objects.all().delete()
 
-    # Create Domains
     domain_1 = Domain.objects.create(name="www.domain1.com")
     domain_2 = Domain.objects.create(name="www.domain2.com")
     all_domains = [domain_1, domain_2]
@@ -44,25 +49,29 @@ def generate_dummy():
     start_date = today - timedelta(days=365)
 
     for domain in all_domains:
-        # Manufacturers
         manufacturers = []
         for name in ["Sony", "Apple", "Samsung", "Dell"]:
             manufacturers.append(Manufacturer.objects.create(name=name, domain=domain))
 
-        # Categories
-        electronics = Category.objects.create(name="Electronics", slug=f"electronics-{domain.id}", domain=domain)
-        phones = Category.objects.create(name="Phones", slug=f"phones-{domain.id}", parent=electronics, domain=domain)
-        laptops = Category.objects.create(name="Laptops", slug=f"laptops-{domain.id}", parent=electronics, domain=domain)
+        # Domain-specific category names
+        if domain == domain_1:
+            electronics = Category.add_root(name="Electronics D1", slug="electronics-d1", domain=domain)
+            phones = electronics.add_child(name="Phones D1", slug="phones-d1", domain=domain)
+            laptops = electronics.add_child(name="Laptops D1", slug="laptops-d1", domain=domain)
+        else:
+            electronics = Category.add_root(name="Electronics D2", slug="electronics-d2", domain=domain)
+            phones = electronics.add_child(name="Phones D2", slug="phones-d2", domain=domain)
+            laptops = electronics.add_child(name="Laptops D2", slug="laptops-d2", domain=domain)
+
         categories = [phones, laptops]
 
-        # Products
         products = []
         for i in range(20):
             name = f"Product {i + 1} ({domain.name})"
             slug = slugify(name)
             sku = f"SKU-{domain.id}-{i + 1000}"
             price = round(random.uniform(50, 500), 2)
-            is_active = random.choice([True, True, True, False])  # ~25% inactive
+            is_active = random.choice([True, True, True, False])
             netto_weight = round(random.uniform(0.1, 5.0), 3)
             dims = lambda: f"{random.randint(5, 50)}x{random.randint(5, 50)}x{random.randint(1, 30)} cm"
 
@@ -82,7 +91,6 @@ def generate_dummy():
             ProductImage.objects.create(product=product, image=generate_image_file(), domain=domain)
             products.append(product)
 
-        # Purchases & PurchaseItems for each day
         current_date = start_date
         while current_date <= today:
             for _ in range(random.randint(1, 3)):
@@ -107,11 +115,3 @@ def generate_dummy():
                 purchase.total_price = round(total, 2)
                 purchase.save()
             current_date += timedelta(days=1)
-
-
-def generate_image_file():
-    """Create a dummy image file in memory."""
-    image = Image.new("RGB", (100, 100), (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-    buffer = BytesIO()
-    image.save(buffer, format="PNG")
-    return ContentFile(buffer.getvalue(), name="dummy.png")

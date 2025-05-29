@@ -8,7 +8,7 @@ dependencies = [
     "django-post-office~=3.7.0",
     # temporary dependency, waiting for new release
     "django-dynamic-preferences@git+https://github.com/agateblue/django-dynamic-preferences.git@69f585b793e33de38ec678b5e56491c42ddf6f64",
-    "django-smartbase-admin",
+    "django-smartbase-admin==0.2.101",
     "django-redis~=5.2.0",
     "redis~=4.5.5",
     "psutil~=5.9.5",
@@ -21,7 +21,7 @@ dependencies = [
     "django-celery-results~=2.5.1",
     "django-sekizai~=4.1.0",
     "python-dotenv>=1.0.1",
-    "setuptools>=69.2.0",
+    "setuptools>=67.0.0",
     "django-treebeard~=4.7",
     "gunicorn~=20.1.0",
     "django-ckeditor~=6.7.2",
