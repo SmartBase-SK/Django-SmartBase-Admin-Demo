@@ -141,7 +141,8 @@ class ProductSBAdmin(SBAdmin):
 @admin.register(Category, site=sb_admin_site)
 class CategorySBAdmin(SBAdmin):
     model = Category
-    sbadmin_list_display = ("name", "slug", "parent")
+    sbadmin_list_display = ("name", "slug", "parent", SBAdminField(name="domain", title="Domain", annotate=F("domain__name")),
+                            )
     search_fields = ["name"]
     ordering = ["name"]
     fieldsets = [
@@ -157,7 +158,7 @@ class CategorySBAdmin(SBAdmin):
 @admin.register(Manufacturer, site=sb_admin_site)
 class ManufacturerSBAdmin(SBAdmin):
     model = Manufacturer
-    sbadmin_list_display = ("name",)
+    sbadmin_list_display = ["name", SBAdminField(name="domain", title="Domain", annotate=F("domain__name"))]
     search_fields = ["name"]
     fieldsets = [
         (
@@ -184,6 +185,7 @@ class PurchaseSBAdmin(SBAdmin):
         "customer_name",
         SBAdminField(name="total_price", title=_("Price")),
         SBAdminField(name="created_at", title=_("Created At")),
+        SBAdminField(name="domain", title="Domain", annotate=F("domain__name")),
     )
 
     search_fields = ["customer_name"]
