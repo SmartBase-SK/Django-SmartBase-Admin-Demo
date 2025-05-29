@@ -10,9 +10,9 @@ INSTALLED_APPS = (
 SB_ADMIN_CONFIGURATION = "project.sb_admin_configuration.SBAdminConfiguration"
 
 ROOT_URLCONF = "project.urls"
-# MIDDLEWARE = MIDDLEWARE + [
-#     'project.middleware.read_only_middleware.ReadOnlyModeMiddleware',
-# ]
+MIDDLEWARE = MIDDLEWARE + [
+    'project.middleware.read_only_middleware.ReadOnlyModeMiddleware',
+]
 if CONTAINER_TYPE != 'celery':
     DATABASES = {
         "default": {
