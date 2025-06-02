@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.db.utils import ProgrammingError
 from django.shortcuts import redirect
@@ -10,6 +12,7 @@ class ReadOnlyModeMiddleware(MiddlewareMixin):
         if isinstance(exception, (InsufficientPrivilege, ProgrammingError)):
             if request.path.startswith('/sb-admin/'):
                 messages.warning(request, "Database is operating in readonly mode. Not possible to save any data.")
+                logging.error(exception)
                 return redirect(request.META.get('HTTP_REFERER', '/sb-admin/'))
 
         return None
