@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 import random
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
+from treebeard.mp_tree import MP_Node
 
 
 class BaseDomainModel(models.Model):
@@ -27,23 +28,21 @@ class Manufacturer(BaseDomainModel):
         return self.name
 
 
-class Category(BaseDomainModel):
+class Category(BaseDomainModel,
+               MP_Node,
+               ):
+    path = models.CharField(max_length=255)
+
+    order_by = models.PositiveIntegerField(default=0, blank=False, null=False)
+
+    is_active = models.BooleanField(default=True, verbose_name="Is active")
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     image = models.ImageField(upload_to="categories", null=True, blank=True)
-    parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL, related_name="children")
-
-    node_order_by = ['name']
 
     class Meta:
-        app_label = "catalog"
-        abstract = False
         verbose_name = "Category"
         verbose_name_plural = "Categories"
-
-    def __str__(self):
-        return self.name
-
 
 class Product(BaseDomainModel):
     name = models.CharField(max_length=255)
