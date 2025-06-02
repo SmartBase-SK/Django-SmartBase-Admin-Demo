@@ -79,8 +79,8 @@ admin_menu_items = [
         label="Catalog",
         icon="List-checkbox",
         sub_items=[
-            SBAdminMenuItem(view_id="catalog_product"),
-            SBAdminMenuItem(view_id="catalog_category"),
+            SBAdminMenuItem(view_id="catalog_product", label="Product list"),
+            SBAdminMenuItem(view_id="catalog_category", label="Categories - Tree Widget"),
             SBAdminMenuItem(view_id="catalog_manufacturer"),
         ],
     ),
@@ -88,8 +88,8 @@ admin_menu_items = [
 ]
 
 editor_menu_items = [
-    SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox"),
-    SBAdminMenuItem(view_id="catalog_category", icon="Tag-one"),
+    SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="Product list"),
+    SBAdminMenuItem(view_id="catalog_category", icon="List-checkbox", label="Categories - Tree Widget"),
     SBAdminMenuItem(view_id="catalog_manufacturer", icon="Box"),
 ]
 
@@ -130,8 +130,8 @@ class BaseConfiguration(SBAdminRoleConfiguration):
 
 
 class AdminConfiguration(BaseConfiguration):
-    menu_items = admin_menu_items
     default_view = SBAdminMenuItem(view_id="dashboard")
+    menu_items = admin_menu_items
 
 
 class EditorConfiguration(BaseConfiguration):
