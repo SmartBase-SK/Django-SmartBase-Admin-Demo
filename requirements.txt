@@ -89,7 +89,7 @@ django-redis==5.2.0
     # via project (pyproject.toml)
 django-sekizai==4.1.0
     # via project (pyproject.toml)
-django-smartbase-admin==0.2.60
+django-smartbase-admin==0.2.101
     # via project (pyproject.toml)
 django-treebeard==4.7.1
     # via project (pyproject.toml)
