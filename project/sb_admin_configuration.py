@@ -80,7 +80,7 @@ admin_menu_items = [
         icon="List-checkbox",
         sub_items=[
             SBAdminMenuItem(view_id="catalog_product", label="Product list"),
-            SBAdminMenuItem(view_id="catalog_category", label="Categories - Tree Widget"),
+            SBAdminMenuItem(view_id="catalog_category", label="Categories - Tree"),
             SBAdminMenuItem(view_id="catalog_manufacturer"),
         ],
     ),
@@ -89,7 +89,7 @@ admin_menu_items = [
 
 editor_menu_items = [
     SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="Product list"),
-    SBAdminMenuItem(view_id="catalog_category", icon="List-checkbox", label="Categories - Tree Widget"),
+    SBAdminMenuItem(view_id="catalog_category", icon="List-checkbox", label="Categories - Tree"),
     SBAdminMenuItem(view_id="catalog_manufacturer", icon="Box"),
 ]
 

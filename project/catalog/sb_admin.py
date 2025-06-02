@@ -2,28 +2,21 @@ from typing import Any
 
 from django.contrib import admin
 from django.db.models import F
+from django.forms import BaseInlineFormSet
 from django.http import JsonResponse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_smartbase_admin.admin.admin_base import (
     SBAdmin,
-    SBAdminTableInline,
-)
+    SBAdminTableInline, )
 from django_smartbase_admin.admin.site import sb_admin_site
-from django_smartbase_admin.admin.widgets import SBAdminTreeWidget
 from django_smartbase_admin.engine.const import DETAIL_STRUCTURE_RIGHT_CLASS
 from django_smartbase_admin.engine.fake_inline import SBAdminFakeInlineMixin
 from django_smartbase_admin.engine.field import SBAdminField
 
 from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem
-from .. import settings
-
-class CategoryTreeWidget(SBAdminTreeWidget):
-    order_by = ["path"]
-    model = Category
-    @classmethod
-    def get_tree_title(cls, request, item):
-        return item.get("name")
+from .sb_admin_forms import ProductCategoryTreeInlineForm
+from .sb_admin_widgets import CategoryTreeWidget
 
 
 class ProductImageInline(SBAdminTableInline):
@@ -40,13 +33,18 @@ def status_formatter(object_id, value):
     return f'<span>{label}</span>'
 
 
+def button_formatter(object_id, value):
+    html = f'<a class="btn btn-small btn-icon"><span>Button</span></a>'
+    return html
+
+
 class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     model = Product
     fields = ["name", "is_current_product"]
     readonly_fields = [*fields]
     can_delete = False
-    verbose_name = "Product from the same manufacturer"
-    verbose_name_plural = "Products from the same manufacturer"
+    verbose_name = "Product from the same manufacturer - Fake inline example"
+    verbose_name_plural = "Products from the same manufacturer - Fake inline example"
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -70,17 +68,33 @@ class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
         )
 
 
+class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
+    model = Product
+    form = ProductCategoryTreeInlineForm
+    title = _("Categories - Tree Widget Inline example")
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def filter_fake_inline_identifier_by_parent_instance(
+            self, inline_queryset, parent_instance
+    ):
+        return inline_queryset.filter(pk=parent_instance.id)
+
+
 @admin.register(Product, site=sb_admin_site)
 class ProductSBAdmin(SBAdmin):
     model = Product
     inlines = [ProductImageInline]
-
-    sbadmin_fake_inlines = [ProductSameManufacturerInline]
+    sbadmin_fake_inlines = [ProductSameManufacturerInline, ProductCategoryTreeInline]
     sbadmin_list_display = (
         "name",
         "sku",
-        SBAdminField(name="price", title=_("Price")),
-        SBAdminField(name="is_active", title=_("Active"), python_formatter=status_formatter),
+        SBAdminField(name="price", title="Price"),
+        SBAdminField(name="is_active", title="Active", python_formatter=status_formatter),
         SBAdminField(
             name="manufacturer",
             title="Manufacturer",
@@ -90,22 +104,21 @@ class ProductSBAdmin(SBAdmin):
         "netto_weight",
         "package_dims",
         "product_dims",
+        SBAdminField(name="slug", title="Button example", python_formatter=button_formatter),
     )
-    # sbadmin_list_view_config = [
-    #     {
-    #         "name": _("Inactive"),
-    #         "url_params": {
-    #             "filterData": {"is_active": {"value":False}}
-    #         },
-    #     }]
+
     sbadmin_tabs = {
         "General": [
             "Appearance",
             "Delivery",
-            "Base settings"
+            "Base settings",
+            ProductSameManufacturerInline
         ],
         "Media": [
             ProductImageInline,
+        ],
+        "Categories": [
+            ProductCategoryTreeInline,
         ],
     }
 
@@ -137,7 +150,6 @@ class ProductSBAdmin(SBAdmin):
                     "is_active",
                     "slug",
                     "sku",
-                    "categories",
                     "manufacturer",
                     "price",
                     "created",
@@ -166,7 +178,7 @@ class CategorySBAdmin(SBAdmin):
         (
             None,
             {
-                "fields": ["name", "slug", "image", "path",]
+                "fields": ["name", "slug", "image", "path", ]
             },
         )
     ]
@@ -182,7 +194,6 @@ class CategorySBAdmin(SBAdmin):
             }
         )
         return tabulator_definition
-
 
     def action_list_json(self, request, modifier, page_size=None):
         if not self.is_reorder_active(request):

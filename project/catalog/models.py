@@ -40,6 +40,8 @@ class Category(BaseDomainModel,
     slug = models.SlugField(unique=True)
     image = models.ImageField(upload_to="categories", null=True, blank=True)
 
+    def __str__(self):
+        return self.name
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "Categories"
