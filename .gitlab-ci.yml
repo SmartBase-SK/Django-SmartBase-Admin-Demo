@@ -79,8 +79,4 @@ deployProduction:
   environment:
     name: production
     url: http://$PROJECT_DEPLOY_DOMAIN
-  only:
-    - production
-    - master
-    - main
   when: manual
