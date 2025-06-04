@@ -57,7 +57,7 @@ deployProduction:
     - export READ_ONLY_POSTGRES_PASSWORD=readonly_password
     - STAGING_SERVER=prime.smartbase.sk
     - USE_DOCKERGEN=0
-    - DEPLOY_SERVER_LOGIN="gitlab@${STAGING_SERVER}"
+    - DEPLOY_SERVER_LOGIN="gitlab@primelocal.smartbase.sk"
     - if  [ -n "$BUILD_SCRIPTS_VERSION" ]; then
           git clone --depth 1 --single-branch --branch $BUILD_SCRIPTS_VERSION https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop-build-scripts.git;
       else
