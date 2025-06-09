@@ -46,12 +46,12 @@ def status_formatter(object_id, value):
         label = "✅"
     else:
         label = "❌"
-    return f'<span>{label}</span>'
+    return mark_safe(f'<span>{label}</span>')
 
 
 def button_formatter(object_id, value):
     html = f'<a class="btn btn-small btn-icon"><span>Button</span></a>'
-    return html
+    return mark_safe(html)
 
 
 class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
