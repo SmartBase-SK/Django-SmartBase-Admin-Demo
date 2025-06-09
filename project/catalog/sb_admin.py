@@ -1,22 +1,38 @@
-from typing import Any
-
-from django.contrib import admin
 from django.db.models import F
 from django.forms import BaseInlineFormSet
 from django.http import JsonResponse
-from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
-from django_smartbase_admin.admin.admin_base import (
-    SBAdmin,
-    SBAdminTableInline, )
-from django_smartbase_admin.admin.site import sb_admin_site
 from django_smartbase_admin.engine.const import DETAIL_STRUCTURE_RIGHT_CLASS
 from django_smartbase_admin.engine.fake_inline import SBAdminFakeInlineMixin
-from django_smartbase_admin.engine.field import SBAdminField
+from django_smartbase_admin.engine.filter_widgets import SBAdminTreeFilterWidget
 
 from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem
 from .sb_admin_forms import ProductCategoryTreeInlineForm
 from .sb_admin_widgets import CategoryTreeWidget
+import re
+from typing import Any
+
+from django import forms
+from django.contrib import admin
+from django.db.models import (
+    F,
+    Q,
+)
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+
+from django_smartbase_admin.admin.admin_base import (
+    SBAdmin,
+    SBAdminTableInline,
+)
+from django_smartbase_admin.admin.site import sb_admin_site
+from django_smartbase_admin.engine.const import (
+    DETAIL_STRUCTURE_RIGHT_CLASS,
+)
+from django_smartbase_admin.engine.fake_inline import (
+    SBAdminFakeInlineMixin,
+)
+from django_smartbase_admin.engine.field import SBAdminField
+from django_smartbase_admin.services.views import SBAdminViewService
 
 
 class ProductImageInline(SBAdminTableInline):
@@ -71,7 +87,7 @@ class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
 class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     model = Product
     form = ProductCategoryTreeInlineForm
-    title = _("Categories - Tree Widget Inline example")
+    title = _("Categories - Tree Widget example")
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -89,6 +105,7 @@ class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
 class ProductSBAdmin(SBAdmin):
     model = Product
     inlines = [ProductImageInline]
+
     sbadmin_fake_inlines = [ProductSameManufacturerInline, ProductCategoryTreeInline]
     sbadmin_list_display = (
         "name",
@@ -105,6 +122,21 @@ class ProductSBAdmin(SBAdmin):
         "package_dims",
         "product_dims",
         SBAdminField(name="slug", title="Button example", python_formatter=button_formatter),
+        SBAdminField(
+            name="categories",
+            title=_("Tree Widget"),
+            annotate=F("categories__name"),
+            filter_widget=SBAdminTreeFilterWidget(
+                model=Category,
+                value_field="path",
+                search_query_lambda=lambda request, qs, model, search_term, language_code: qs.filter(
+                    translations__name__icontains=search_term
+                ),
+                filter_query_lambda=lambda request, filter_value: Q(
+                    is_in_filtered_category=True
+                ),
+            ),
+        )
     )
 
     sbadmin_tabs = {
@@ -112,13 +144,15 @@ class ProductSBAdmin(SBAdmin):
             "Appearance",
             "Delivery",
             "Base settings",
-            ProductSameManufacturerInline
         ],
         "Media": [
             ProductImageInline,
         ],
-        "Categories": [
+        "Tree Widget": [
             ProductCategoryTreeInline,
+        ],
+        "Fake inline": [
+            ProductSameManufacturerInline,
         ],
     }
 
@@ -163,10 +197,7 @@ class ProductSBAdmin(SBAdmin):
 @admin.register(Category, site=sb_admin_site)
 class CategorySBAdmin(SBAdmin):
     model = Category
-    sbadmin_list_display = ("name", SBAdminField(name="domain", title="Domain", annotate=F("domain__name")),
-                            )
-    search_fields = ["name"]
-
+    sbadmin_list_display = ("name", SBAdminField(name="domain", title="Domain", annotate=F("domain__name")),)
     change_list_template = "sb_admin/actions/tree_list.html"
     sbadmin_list_display_data = ["depth", "path"]
     sbadmin_list_reorder_field = "path"
@@ -257,7 +288,6 @@ class PurchaseSBAdmin(SBAdmin):
         SBAdminField(name="domain", title="Domain", annotate=F("domain__name")),
     )
 
-    search_fields = ["customer_name"]
     list_filter = ["created_at"]
 
     ordering = ["-created_at"]
