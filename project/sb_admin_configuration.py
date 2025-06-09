@@ -86,8 +86,9 @@ admin_menu_items = [
             SBAdminMenuItem(view_id="catalog_manufacturer", label="Quick search"),
             SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": ""})}', label="Tabs"),
             SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "tree-widget"})}', label="Tree Widget Field"),
+            SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "table-inline"})}', label="Table Inline"),
+            SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "stacked-inline"})}', label="Stacked Inline"),
             SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "fake-inline"})}', label="Fake inline"),
-
         ],
     ),
 ]

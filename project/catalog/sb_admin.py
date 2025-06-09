@@ -22,7 +22,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_smartbase_admin.admin.admin_base import (
     SBAdmin,
-    SBAdminTableInline,
+    SBAdminTableInline, SBAdminTableInlinePaginated, SBAdminStackedInline,
 )
 from django_smartbase_admin.admin.site import sb_admin_site
 from django_smartbase_admin.engine.const import (
@@ -274,12 +274,19 @@ class PurchaseItemInline(SBAdminTableInline):
     model = PurchaseItem
     fields = ("product", "price")
     extra = 1
+    verbose_name = "Items - Table Inline Example"
+    verbose_name_plural = "Items - Table Inline Example"
+class PurchaseItemInlineStacked(SBAdminStackedInline):
+    model = PurchaseItem
+    fields = ("product", "price")
+    verbose_name = "Items - Stacked Inline Example"
+    verbose_name_plural = "Items - Stacked Inline Example"
 
 
 @admin.register(Purchase, site=sb_admin_site)
 class PurchaseSBAdmin(SBAdmin):
     model = Purchase
-    inlines = [PurchaseItemInline]
+    inlines = [PurchaseItemInline, PurchaseItemInlineStacked]
 
     sbadmin_list_display = (
         "customer_name",
@@ -291,7 +298,18 @@ class PurchaseSBAdmin(SBAdmin):
     list_filter = ["created_at"]
 
     ordering = ["-created_at"]
-
+    sbadmin_tabs = {
+        "General": [
+            None,
+            "Meta",
+        ],
+        "Table inline": [
+            PurchaseItemInline,
+        ],
+        "Stacked inline": [
+            PurchaseItemInlineStacked,
+        ],
+    }
     fieldsets = [
         (
             None,
@@ -303,8 +321,9 @@ class PurchaseSBAdmin(SBAdmin):
             },
         ),
         (
-            _("Meta"),
+            "Meta",
             {
+                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS],
                 "fields": ["created_at"],
             },
         ),
