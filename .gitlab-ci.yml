@@ -72,7 +72,7 @@ deployProduction:
     - source ./smartshop-build-scripts/build_code.sh
     - source ./smartshop-build-scripts/pre_deploy.sh
     - source ./smartshop-build-scripts/deploy_production.sh
-    - source ./smartshop-build-scripts/build_documentation.sh
+#    - source ./smartshop-build-scripts/build_documentation.sh
     - source ./smartshop-build-scripts/post_deploy.sh
   tags:
     - runner
