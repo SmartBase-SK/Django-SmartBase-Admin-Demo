@@ -1,23 +1,24 @@
 from django import forms
-from django_smartbase_admin.admin.widgets import SBAdminRadioWidget
-from django_smartbase_admin.engine.field import SBAdminField
-
-from project.catalog.models import Purchase, Domain, BaseDomainModel
-
 from django.db.models import Sum, Count, F
+from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
+from django_smartbase_admin.admin.widgets import SBAdminRadioWidget
 from django_smartbase_admin.engine.configuration import (
     SBAdminRoleConfiguration,
     SBAdminConfigurationBase,
 )
 from django_smartbase_admin.engine.const import FilterVersions, GLOBAL_FILTER_DATA_KEY
-from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
-from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
 from django_smartbase_admin.engine.dashboard import (
     SBAdminDashboardLineChartWidgetByDate,
     SBAdminDashboardListWidget,
     SBAdminChartAggregateSubWidget,
 )
+from django_smartbase_admin.engine.field import SBAdminField
+from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
+from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
+
+from project.catalog.models import Purchase, Domain, BaseDomainModel, Product
 
 EDITOR_ROLE = "Editors"
 
@@ -76,20 +77,25 @@ admin_menu_items = [
     SBAdminMenuItem(view_id="dashboard", icon="All-application"),
 
     SBAdminMenuItem(
-        label="Catalog",
+        label="Features",
         icon="List-checkbox",
         sub_items=[
-            SBAdminMenuItem(view_id="catalog_product", label="Product list"),
-            SBAdminMenuItem(view_id="catalog_category", label="Categories - Tree"),
-            SBAdminMenuItem(view_id="catalog_manufacturer"),
+            SBAdminMenuItem(view_id="catalog_product", label="List View"),
+            SBAdminMenuItem(view_id="catalog_purchase", label="Advanced filters"),
+            SBAdminMenuItem(view_id="catalog_category", label="Tree Widget"),
+            SBAdminMenuItem(view_id="catalog_manufacturer", label="Quick search"),
+            SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": ""})}', label="Tabs"),
+            SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "tree-widget"})}', label="Tree Widget Field"),
+            SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "table-inline"})}', label="Table Inline"),
+            SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "stacked-inline"})}', label="Stacked Inline"),
+            SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "fake-inline"})}', label="Fake inline"),
         ],
     ),
-    SBAdminMenuItem(view_id="catalog_purchase", icon="Table-report"),
 ]
 
 editor_menu_items = [
-    SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="Product list"),
-    SBAdminMenuItem(view_id="catalog_category", icon="List-checkbox", label="Categories - Tree"),
+    SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="List View"),
+    SBAdminMenuItem(view_id="catalog_category", icon="List-checkbox", label="Tree View"),
     SBAdminMenuItem(view_id="catalog_manufacturer", icon="Box"),
 ]
 
@@ -102,7 +108,7 @@ class BaseConfiguration(SBAdminRoleConfiguration):
         SBAdminDashboardView(
             widgets=[
                 PurchaseChartWidget(settings=[]),
-                PurchaseDashboardListWidget(),
+                PurchaseDashboardListWidget()
             ],
             title="Dashboard",
         ),
