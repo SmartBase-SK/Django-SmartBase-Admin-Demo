@@ -6,7 +6,7 @@ from sbcore.config.celery import app
 
 @app.task(name="send_revision_notifications_task")
 def generate_dummy_task():
-    generate_dummy()
+    generate_dummy(full=False)
 
 
 def register_celery_tasks():
