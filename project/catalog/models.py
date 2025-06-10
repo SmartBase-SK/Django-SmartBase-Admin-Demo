@@ -46,6 +46,12 @@ class Category(BaseDomainModel,
         verbose_name = "Category"
         verbose_name_plural = "Categories"
 
+RELEASE_CHOICES = [
+    ("standard", "Standard Release"),
+    ("limited", "Limited Edition"),
+    ("exclusive", "Online Exclusive"),
+]
+
 class Product(BaseDomainModel):
     name = models.CharField(max_length=255)
     description = models.TextField(
@@ -58,6 +64,13 @@ class Product(BaseDomainModel):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True, verbose_name="Created")
+    related_products = models.ManyToManyField(
+        "self",
+        symmetrical=False,
+        blank=True,
+        related_name="related_to",
+        verbose_name=_("Related Products")
+    )
     netto_weight = models.DecimalField(
         max_digits=6,
         blank=True,
@@ -78,6 +91,45 @@ class Product(BaseDomainModel):
         null=True,
         verbose_name=_("Product dimensions"),
 
+    )
+
+    available_from = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name=_("Available From")
+    )
+
+    is_featured = models.BooleanField(
+        default=False,
+        verbose_name=_("Featured Product")
+    )
+
+    stock_quantity = models.IntegerField(
+        default=0,
+        verbose_name=_("Stock Quantity")
+    )
+
+    tags = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_("Comma-separated list of tags"),
+        verbose_name=_("Tags")
+    )
+
+    barcode = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name=_("Barcode")
+    )
+
+    release_type = models.CharField(
+        max_length=20,
+        choices=RELEASE_CHOICES,
+        default="standard",
+        verbose_name=_("Release Type")
     )
 
     def __str__(self):

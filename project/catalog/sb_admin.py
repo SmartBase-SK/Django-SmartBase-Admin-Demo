@@ -34,6 +34,8 @@ from django_smartbase_admin.engine.fake_inline import (
 from django_smartbase_admin.engine.field import SBAdminField
 from django_smartbase_admin.services.views import SBAdminViewService
 
+from .. import settings
+
 
 class ProductImageInline(SBAdminTableInline):
     model = ProductImage
@@ -41,23 +43,35 @@ class ProductImageInline(SBAdminTableInline):
     extra = 1
 
 
-def status_formatter(object_id, value):
-    if value:
-        label = "✅"
-    else:
-        label = "❌"
-    return mark_safe(f'<span>{label}</span>')
-
-
 def button_formatter(object_id, value):
     html = f'<a class="btn btn-small btn-icon"><span>Button</span></a>'
     return mark_safe(html)
 
 
+def boolean_icon_formatter(object_id, value):
+    return mark_safe("✅" if value else "❌")
+
+
+def currency_formatter(object_id, value):
+    return mark_safe(f'<span class="badge badge-simple badge-positive">{value:.2f} €</span>')
+
+
+def dimensions_formatter(object_id, value):
+    return mark_safe(f'<span class="badge badge-simple ">{value or "-"}</span>')
+
+
+def manufacturer_formatter(object_id, value):
+    return value or _("—")
+
+
+def weight_formatter(object_id, value):
+    return f"{value:.3f} kg" if value else "-"
+
+
 class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     model = Product
-    fields = ["name", "is_current_product"]
-    readonly_fields = [*fields]
+    fields = ["name", "price", "is_active", "created", "is_current_product"]
+    readonly_fields = fields
     can_delete = False
     verbose_name = "Product from the same manufacturer - Fake inline example"
     verbose_name_plural = "Products from the same manufacturer - Fake inline example"
@@ -84,6 +98,34 @@ class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
         )
 
 
+class RelatedProductsOutgoingInline(SBAdminFakeInlineMixin, SBAdminTableInline):
+    model = Product
+    fields = ["name", "price", "is_active", "manufacturer"]
+    readonly_fields = fields
+    can_delete = False
+    verbose_name_plural = _("Related products (linked from this product) - Fake inline of the field 'related_products'")
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def filter_fake_inline_identifier_by_parent_instance(self, inline_queryset, parent_instance):
+        return inline_queryset.filter(pk__in=parent_instance.related_products.all())
+
+
+class RelatedProductsIncomingInline(SBAdminFakeInlineMixin, SBAdminTableInline):
+    model = Product
+    fields = ["name", "price", "is_active", "manufacturer"]
+    readonly_fields = fields
+    can_delete = False
+    verbose_name_plural = _("Related products (linked to this product) - Second Fake inline of the field 'related_products'")
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def filter_fake_inline_identifier_by_parent_instance(self, inline_queryset, parent_instance):
+        return inline_queryset.filter(related_products=parent_instance)
+
+
 class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     model = Product
     form = ProductCategoryTreeInlineForm
@@ -106,25 +148,30 @@ class ProductSBAdmin(SBAdmin):
     model = Product
     inlines = [ProductImageInline]
 
-    sbadmin_fake_inlines = [ProductSameManufacturerInline, ProductCategoryTreeInline]
+    sbadmin_fake_inlines = [ProductSameManufacturerInline, ProductCategoryTreeInline, RelatedProductsOutgoingInline,
+                            RelatedProductsIncomingInline, ]
     sbadmin_list_display = (
+        "get_image",
         "name",
         "sku",
-        SBAdminField(name="price", title="Price"),
-        SBAdminField(name="is_active", title="Active", python_formatter=status_formatter),
+        SBAdminField(name="price", title=_("Price (€)"), python_formatter=currency_formatter),
+        SBAdminField(name="is_active", title=_("Active"), python_formatter=boolean_icon_formatter),
+        "is_featured",
         SBAdminField(
             name="manufacturer",
-            title="Manufacturer",
+            title=_("Manufacturer"),
             annotate=F("manufacturer__name"),
             filter_field="manufacturer__name",
+            python_formatter=manufacturer_formatter,
         ),
-        "netto_weight",
-        "package_dims",
-        "product_dims",
-        SBAdminField(name="slug", title="Button example", python_formatter=button_formatter),
+        SBAdminField(name="netto_weight", title=_("Weight (kg)"), python_formatter=weight_formatter),
+        SBAdminField(name="package_dims", title=_("Package"), python_formatter=dimensions_formatter),
+        SBAdminField(name="product_dims", title=_("Product"), python_formatter=dimensions_formatter),
+        SBAdminField(name="created", title=_("Created")),
+        SBAdminField(name="slug", title=_("Action"), python_formatter=button_formatter),
         SBAdminField(
             name="categories",
-            title=_("Tree Widget"),
+            title=_("Categories"),
             annotate=F("categories__name"),
             filter_widget=SBAdminTreeFilterWidget(
                 model=Category,
@@ -136,13 +183,14 @@ class ProductSBAdmin(SBAdmin):
                     is_in_filtered_category=True
                 ),
             ),
-        )
+        ),
     )
 
     sbadmin_tabs = {
         "General": [
             "Appearance",
             "Delivery",
+            "Other settings",
             "Base settings",
         ],
         "Media": [
@@ -153,6 +201,8 @@ class ProductSBAdmin(SBAdmin):
         ],
         "Fake inline": [
             ProductSameManufacturerInline,
+            RelatedProductsOutgoingInline,
+            RelatedProductsIncomingInline,
         ],
     }
 
@@ -175,6 +225,15 @@ class ProductSBAdmin(SBAdmin):
                      "product_dims",)
                 ]
             },
+        ), (
+            "Other settings",
+            {
+                "fields": [
+                    "stock_quantity",
+                    "barcode",
+                    "tags",
+                ]
+            },
         ),
         (
             "Base settings",
@@ -182,16 +241,32 @@ class ProductSBAdmin(SBAdmin):
                 "classes": [DETAIL_STRUCTURE_RIGHT_CLASS],
                 "fields": [
                     "is_active",
+                    "is_featured",
+                    "release_type",
                     "slug",
                     "sku",
                     "manufacturer",
                     "price",
                     "created",
+
                 ],
             },
         ),
     ]
     readonly_fields = ['created']
+
+    @admin.display(ordering="tags", description="Image")
+    def get_image(self, object_id, value=None, **kwargs):
+
+        product = Product.objects.prefetch_related("images").get(pk=object_id)
+        first_image = product.images.first()
+
+        return mark_safe(
+            f'<div class="catalog-image w-40 h-40 border border-dark-200 rounded-xs overflow-hidden">'
+            f'<img src="{first_image.image.url}" width="40" height="40" /></div>'
+        )
+
+
 
 
 @admin.register(Category, site=sb_admin_site)
@@ -276,6 +351,8 @@ class PurchaseItemInline(SBAdminTableInline):
     extra = 1
     verbose_name = "Items - Table Inline Example"
     verbose_name_plural = "Items - Table Inline Example"
+
+
 class PurchaseItemInlineStacked(SBAdminStackedInline):
     model = PurchaseItem
     fields = ("product", "price")

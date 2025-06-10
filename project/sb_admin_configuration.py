@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Sum, Count, F
 from django.urls import reverse
 from django.utils.http import urlencode
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_smartbase_admin.admin.widgets import SBAdminRadioWidget
 from django_smartbase_admin.engine.configuration import (
@@ -45,10 +46,15 @@ class GlobalFilterForm(forms.Form):
 
 class PurchaseDashboardListWidget(SBAdminDashboardListWidget):
     ordering = ["-created_at"]
-    name = "Latest Purchases"
+    name = _("Latest Purchases")
     model = Purchase
-    list_display = ["created_at", "customer_name", "total_price", SBAdminField(name="domain", title="Domain", annotate=F("domain__name"))]
     list_per_page = 10
+
+    list_display = [
+        "created_at",
+        SBAdminField(name="customer_name", title=_("Customer")),
+        SBAdminField(name="total_price", title=_("Total Price")),
+    ]
 
 
 def format_total_price(sub_widget, request, value):
@@ -56,6 +62,9 @@ def format_total_price(sub_widget, request, value):
 
 
 class PurchaseChartWidget(SBAdminDashboardLineChartWidgetByDate):
+    def get_default_shortcut_index(self):
+        return 2
+
     name = _("Turnover")
     model = Purchase
     date_annotate_field = "created_at"
@@ -75,22 +84,26 @@ class PurchaseChartWidget(SBAdminDashboardLineChartWidgetByDate):
 
 admin_menu_items = [
     SBAdminMenuItem(view_id="dashboard", icon="All-application"),
-
     SBAdminMenuItem(
-        label="Features",
-        icon="List-checkbox",
+        label="Catalog",
+        icon="Box",
         sub_items=[
-            SBAdminMenuItem(view_id="catalog_product", label="List View"),
-            SBAdminMenuItem(view_id="catalog_purchase", label="Advanced filters"),
-            SBAdminMenuItem(view_id="catalog_category", label="Tree Widget"),
-            SBAdminMenuItem(view_id="catalog_manufacturer", label="Quick search"),
-            SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": ""})}', label="Tabs"),
-            SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "tree-widget"})}', label="Tree Widget Field"),
-            SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "table-inline"})}', label="Table Inline"),
-            SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "stacked-inline"})}', label="Stacked Inline"),
-            SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "fake-inline"})}', label="Fake inline"),
+            SBAdminMenuItem(view_id="catalog_product", label="Products"),
+            SBAdminMenuItem(view_id="catalog_category", label="Categories"),
+            SBAdminMenuItem(view_id="catalog_manufacturer", label="Manufacturers"),
         ],
     ),
+
+    SBAdminMenuItem(view_id="catalog_product", label="List View", icon="List-checkbox"),
+    SBAdminMenuItem(view_id="catalog_purchase", label="Advanced filters", icon="Filter"),
+    SBAdminMenuItem(view_id="catalog_category", label="Tree Widget", icon="Sort-amount-down"),
+    SBAdminMenuItem(view_id="catalog_manufacturer", label="Quick search", icon="Find"),
+    SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": ""})}', label="Tabs", icon="Minus-the-top"),
+    SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "tree-widget"})}', label="Tree Widget Field", icon="Triangle-round-rectangle"),
+    SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "table-inline"})}', label="Table Inline", icon="Id-card-h"),
+    SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "stacked-inline"})}', label="Stacked Inline", icon="Table-report"),
+    SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "fake-inline"})}', label="Fake inline", icon="Magic"),
+
 ]
 
 editor_menu_items = [
