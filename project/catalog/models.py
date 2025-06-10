@@ -42,9 +42,11 @@ class Category(BaseDomainModel,
 
     def __str__(self):
         return self.name
+
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "Categories"
+
 
 RELEASE_CHOICES = [
     ("standard", "Standard Release"),
@@ -52,8 +54,10 @@ RELEASE_CHOICES = [
     ("exclusive", "Online Exclusive"),
 ]
 
+
 class Product(BaseDomainModel):
     name = models.CharField(max_length=255)
+
     description = models.TextField(
         blank=True, null=True, verbose_name=_("Description")
     )
@@ -134,6 +138,10 @@ class Product(BaseDomainModel):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = _("Product")
+        verbose_name_plural = _("Products")
 
 
 class ProductImage(BaseDomainModel):

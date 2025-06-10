@@ -143,11 +143,18 @@ class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
         return inline_queryset.filter(pk=parent_instance.id)
 
 
+class RelatedProductsInline(SBAdminTableInline):
+    model = Product.related_products.through
+    fk_name = "from_product"
+    extra = 1
+    verbose_name = "Related product"
+    verbose_name_plural = "Related products - Many To Many inline example"
+
+
 @admin.register(Product, site=sb_admin_site)
 class ProductSBAdmin(SBAdmin):
     model = Product
-    inlines = [ProductImageInline]
-
+    inlines = [ProductImageInline, RelatedProductsInline]
     sbadmin_fake_inlines = [ProductSameManufacturerInline, ProductCategoryTreeInline, RelatedProductsOutgoingInline,
                             RelatedProductsIncomingInline, ]
     sbadmin_list_display = (
@@ -191,6 +198,7 @@ class ProductSBAdmin(SBAdmin):
             "Appearance",
             "Delivery",
             "Other settings",
+            RelatedProductsInline,
             "Base settings",
         ],
         "Media": [
