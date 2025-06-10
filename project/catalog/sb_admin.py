@@ -229,8 +229,7 @@ class ProductSBAdmin(SBAdmin):
             "Other settings",
             {
                 "fields": [
-                    "stock_quantity",
-                    "barcode",
+                    ("stock_quantity", "barcode",),
                     "tags",
                 ]
             },
@@ -257,7 +256,6 @@ class ProductSBAdmin(SBAdmin):
 
     @admin.display(ordering="tags", description="Image")
     def get_image(self, object_id, value=None, **kwargs):
-
         product = Product.objects.prefetch_related("images").get(pk=object_id)
         first_image = product.images.first()
 
@@ -265,8 +263,6 @@ class ProductSBAdmin(SBAdmin):
             f'<div class="catalog-image w-40 h-40 border border-dark-200 rounded-xs overflow-hidden">'
             f'<img src="{first_image.image.url}" width="40" height="40" /></div>'
         )
-
-
 
 
 @admin.register(Category, site=sb_admin_site)

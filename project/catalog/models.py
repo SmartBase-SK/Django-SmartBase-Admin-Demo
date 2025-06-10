@@ -122,7 +122,7 @@ class Product(BaseDomainModel):
         blank=True,
         null=True,
         unique=True,
-        verbose_name=_("Barcode")
+        verbose_name=_("Ean code")
     )
 
     release_type = models.CharField(
