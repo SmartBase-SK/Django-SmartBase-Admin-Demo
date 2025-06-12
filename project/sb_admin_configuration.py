@@ -95,9 +95,10 @@ admin_menu_items = [
     ),
 
     SBAdminMenuItem(view_id="catalog_product", label="List View", icon="List-checkbox"),
+    SBAdminMenuItem(view_id="catalog_editablelistmodel", label="Editable List View", icon="Edit"),
     SBAdminMenuItem(view_id="catalog_purchase", label="Advanced filters", icon="Filter"),
     SBAdminMenuItem(view_id="catalog_category", label="Tree Widget", icon="Sort-amount-down"),
-    SBAdminMenuItem(view_id="catalog_manufacturer", label="Quick search", icon="Find"),
+    SBAdminMenuItem(view_id="catalog_quicksearchmodel", label="Quick search", icon="Find"),
     SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": ""})}', label="Tabs", icon="Minus-the-top"),
     SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": "tree-widget"})}', label="Tree Widget Field", icon="Triangle-round-rectangle"),
     SBAdminMenuItem(url=f'{reverse("redirect_to_last_purchase")}?{urlencode({"tab": "table-inline"})}', label="Table Inline", icon="Id-card-h"),

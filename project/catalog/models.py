@@ -196,3 +196,26 @@ class PurchaseItem(BaseDomainModel):
 
     def __str__(self):
         return f"{self.product.name} – {self.price} €"
+
+
+class EditableListModel(BaseDomainModel):
+    name = models.CharField("Name", max_length=100, )
+    value_1 = models.CharField("Value 1", max_length=100, )
+    value_2 = models.CharField("Value 2", max_length=100, )
+
+    class Meta:
+        verbose_name = _("Editable list model")
+        verbose_name_plural = _("Editable list models")
+
+    def __str__(self):
+        return self.name
+
+class QuickSearchModel(BaseDomainModel):
+    name = models.CharField("Name", max_length=100, )
+
+    class Meta:
+        verbose_name = _("Item")
+        verbose_name_plural = _("Items")
+
+    def __str__(self):
+        return self.name

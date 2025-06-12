@@ -14,7 +14,7 @@ from project.catalog.models import (
     Product,
     ProductImage,
     Purchase,
-    PurchaseItem,
+    PurchaseItem, EditableListModel, QuickSearchModel,
 )
 
 
@@ -38,6 +38,8 @@ def generate_dummy(full=True):
         Category.objects.all().delete()
         Manufacturer.objects.all().delete()
         Domain.objects.all().delete()
+        EditableListModel.objects.all().delete()
+        QuickSearchModel.objects.all().delete()
 
         domain_1 = Domain.objects.create(name="www.domain1.com")
         domain_2 = Domain.objects.create(name="www.domain2.com")
@@ -57,6 +59,18 @@ def generate_dummy(full=True):
 
     for domain in all_domains:
         if full:
+            for i in range(1, 6):
+                EditableListModel.objects.create(
+                    name=f"Item {i} - {domain.name}",
+                    domain=domain,
+                    value_1=f"Value",
+                    value_2=f"Value"
+                )
+                QuickSearchModel.objects.create(
+                    domain=domain,
+                    name=f"Item {i} - {domain.name}",
+                )
+
             manufacturers = []
             for name in ["Sony", "Apple", "Samsung", "Dell"]:
                 manufacturers.append(Manufacturer.objects.create(name=name, domain=domain))

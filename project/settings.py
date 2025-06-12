@@ -13,7 +13,7 @@ ROOT_URLCONF = "project.urls"
 MIDDLEWARE = MIDDLEWARE + [
     'project.middleware.read_only_middleware.ReadOnlyModeMiddleware',
 ]
-if CONTAINER_TYPE != 'celery':
+if CONTAINER_TYPE != 'celery' and ENVIRONMENT != 'dev':
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",

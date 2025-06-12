@@ -1,28 +1,19 @@
-from django.db.models import F
-from django.forms import BaseInlineFormSet
-from django.http import JsonResponse
-from django_smartbase_admin.engine.const import DETAIL_STRUCTURE_RIGHT_CLASS
-from django_smartbase_admin.engine.fake_inline import SBAdminFakeInlineMixin
-from django_smartbase_admin.engine.filter_widgets import SBAdminTreeFilterWidget
+import json
 
-from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem
-from .sb_admin_forms import ProductCategoryTreeInlineForm
-from .sb_admin_widgets import CategoryTreeWidget
-import re
+from django.http import JsonResponse, HttpResponse
 from typing import Any
 
-from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import (
     F,
     Q,
 )
+from django.http import JsonResponse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-
 from django_smartbase_admin.admin.admin_base import (
     SBAdmin,
-    SBAdminTableInline, SBAdminTableInlinePaginated, SBAdminStackedInline,
+    SBAdminTableInline, SBAdminStackedInline,
 )
 from django_smartbase_admin.admin.site import sb_admin_site
 from django_smartbase_admin.engine.const import (
@@ -32,9 +23,12 @@ from django_smartbase_admin.engine.fake_inline import (
     SBAdminFakeInlineMixin,
 )
 from django_smartbase_admin.engine.field import SBAdminField
-from django_smartbase_admin.services.views import SBAdminViewService
+from django_smartbase_admin.engine.filter_widgets import SBAdminTreeFilterWidget
+from django_smartbase_admin.utils import render_notifications
 
-from .. import settings
+from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem, EditableListModel, QuickSearchModel
+from .sb_admin_forms import ProductCategoryTreeInlineForm
+from .sb_admin_widgets import CategoryTreeWidget
 
 
 class ProductImageInline(SBAdminTableInline):
@@ -337,7 +331,7 @@ class CategorySBAdmin(SBAdmin):
 @admin.register(Manufacturer, site=sb_admin_site)
 class ManufacturerSBAdmin(SBAdmin):
     model = Manufacturer
-    sbadmin_list_display = ["name", SBAdminField(name="domain", title="Domain", annotate=F("domain__name"))]
+    sbadmin_list_display = ["name"]
     search_fields = ["name"]
     fieldsets = [
         (
@@ -347,6 +341,55 @@ class ManufacturerSBAdmin(SBAdmin):
             },
         )
     ]
+
+
+@admin.register(QuickSearchModel, site=sb_admin_site)
+class QuickSearchModelSBAdmin(SBAdmin):
+    model = QuickSearchModel
+    sbadmin_list_display = ["name"]
+    search_fields = ["name"]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["name"]
+            },
+        )
+    ]
+
+
+@admin.register(EditableListModel, site=sb_admin_site)
+class EditableListModelSBAdmin(SBAdmin):
+    model = EditableListModel
+    sbadmin_list_display = ["name", SBAdminField(
+        name="value_1",
+        tabulator_editor="input",
+    ), SBAdminField(
+        name="value_2",
+        tabulator_editor="input",
+    )]
+    search_fields = ["name"]
+    fieldsets = [
+        (None, {"fields": ["name", "value_1", "value_2"]}),
+    ]
+
+    def get_tabulator_definition(self, request):
+        tabulator_definition = super().get_tabulator_definition(request)
+        tabulator_definition["modules"] = [
+            "dataEditModule",
+        ]
+        return tabulator_definition
+
+    def action_table_data_edit(self, request, modifier):
+        current_row_id = json.loads(request.POST.get("currentRowId", ""))
+        column_field_name = request.POST.get("columnFieldName", "")
+        cell_value = request.POST.get("cellValue", "")
+        field_map = self.get_field_map(request)
+        field = field_map.get(column_field_name)
+        if field:
+            messages.add_message(request, messages.INFO, f"Row id: {current_row_id}, New value: {cell_value}")
+            messages.add_message(request, messages.WARNING, f"Database works in read-only mode. Changes will not be persistent.")
+            return HttpResponse(status=200, content=render_notifications(request))
 
 
 class PurchaseItemInline(SBAdminTableInline):
