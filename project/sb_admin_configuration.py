@@ -96,6 +96,7 @@ admin_menu_items = [
 
     SBAdminMenuItem(view_id="catalog_product", label="List View", icon="List-checkbox"),
     SBAdminMenuItem(view_id="catalog_editablelistmodel", label="Editable List View", icon="Edit"),
+    SBAdminMenuItem(view_id="catalog_reordermodel", label="Reorder List View", icon="Sort-amount-down"),
     SBAdminMenuItem(view_id="catalog_purchase", label="Advanced filters", icon="Filter"),
     SBAdminMenuItem(view_id="catalog_category", label="Tree Widget", icon="Sort-amount-down"),
     SBAdminMenuItem(view_id="catalog_quicksearchmodel", label="Quick search", icon="Find"),

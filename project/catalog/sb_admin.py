@@ -1,6 +1,4 @@
 import json
-
-from django.http import JsonResponse, HttpResponse
 from typing import Any
 
 from django.contrib import admin, messages
@@ -8,6 +6,7 @@ from django.db.models import (
     F,
     Q,
 )
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -26,7 +25,7 @@ from django_smartbase_admin.engine.field import SBAdminField
 from django_smartbase_admin.engine.filter_widgets import SBAdminTreeFilterWidget
 from django_smartbase_admin.utils import render_notifications
 
-from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem, EditableListModel, QuickSearchModel
+from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem, EditableListModel, QuickSearchModel, ReorderModel
 from .sb_admin_forms import ProductCategoryTreeInlineForm
 from .sb_admin_widgets import CategoryTreeWidget
 
@@ -454,3 +453,19 @@ class PurchaseSBAdmin(SBAdmin):
     ]
 
     readonly_fields = ["created_at"]
+
+
+@admin.register(ReorderModel, site=sb_admin_site)
+class ReorderModelSBAdmin(SBAdmin):
+    model = ReorderModel
+    sbadmin_list_reorder_field = "order_by"
+    ordering = ["order_by"]
+    sbadmin_list_display = ["name"]
+    search_fields = ["name"]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["name"]
+            },
+        )]
