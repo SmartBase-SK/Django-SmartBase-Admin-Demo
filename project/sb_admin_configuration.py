@@ -96,7 +96,7 @@ admin_menu_items = [
 
     SBAdminMenuItem(view_id="catalog_product", label="List View", icon="List-checkbox"),
     SBAdminMenuItem(view_id="catalog_editablelistmodel", label="Editable List View", icon="Edit"),
-    SBAdminMenuItem(view_id="catalog_reordermodel", label="Reorder List View", icon="Sort-amount-down"),
+    SBAdminMenuItem(view_id="catalog_reordermodel", url='/sb-admin/catalog_reordermodel/action_enter_reorder/template', label="Reorder List View", icon="Sort-amount-down"),
     SBAdminMenuItem(view_id="catalog_purchase", label="Advanced filters", icon="Filter"),
     SBAdminMenuItem(view_id="catalog_category", label="Tree Widget", icon="Sort-amount-down"),
     SBAdminMenuItem(view_id="catalog_quicksearchmodel", label="Quick search", icon="Find"),
@@ -117,7 +117,6 @@ editor_menu_items = [
 
 class BaseConfiguration(SBAdminRoleConfiguration):
     global_filter_form = GlobalFilterForm
-    filters_version = FilterVersions.FILTERS_VERSION_2
     default_view = SBAdminMenuItem(view_id="dashboard")
     registered_views = [
         SBAdminDashboardView(

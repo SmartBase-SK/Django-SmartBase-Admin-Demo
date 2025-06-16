@@ -16,7 +16,7 @@ from django_smartbase_admin.admin.admin_base import (
 )
 from django_smartbase_admin.admin.site import sb_admin_site
 from django_smartbase_admin.engine.const import (
-    DETAIL_STRUCTURE_RIGHT_CLASS,
+    DETAIL_STRUCTURE_RIGHT_CLASS, FilterVersions,
 )
 from django_smartbase_admin.engine.fake_inline import (
     SBAdminFakeInlineMixin,
@@ -27,7 +27,7 @@ from django_smartbase_admin.utils import render_notifications
 
 from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem, EditableListModel, QuickSearchModel, ReorderModel
 from .sb_admin_forms import ProductCategoryTreeInlineForm
-from .sb_admin_widgets import CategoryTreeWidget
+from .sb_admin_widgets import CategoryTreeWidget, CategoryTreeFilterWidget
 
 
 class ProductImageInline(SBAdminTableInline):
@@ -173,14 +173,12 @@ class ProductSBAdmin(SBAdmin):
             name="categories",
             title=_("Categories"),
             annotate=F("categories__name"),
-            filter_widget=SBAdminTreeFilterWidget(
-                model=Category,
-                value_field="path",
+            filter_widget=CategoryTreeFilterWidget(
                 search_query_lambda=lambda request, qs, model, search_term, language_code: qs.filter(
-                    translations__name__icontains=search_term
+                    name__icontains=search_term
                 ),
                 filter_query_lambda=lambda request, filter_value: Q(
-                    is_in_filtered_category=True
+                    is_active=True
                 ),
             ),
         ),
@@ -409,8 +407,8 @@ class PurchaseItemInlineStacked(SBAdminStackedInline):
 @admin.register(Purchase, site=sb_admin_site)
 class PurchaseSBAdmin(SBAdmin):
     model = Purchase
+    filters_version = FilterVersions.FILTERS_VERSION_2
     inlines = [PurchaseItemInline, PurchaseItemInlineStacked]
-
     sbadmin_list_display = (
         "customer_name",
         SBAdminField(name="total_price", title=_("Price")),

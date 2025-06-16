@@ -1,8 +1,8 @@
+import random
+from datetime import datetime
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-import random
-from datetime import datetime, timedelta
-from django.utils.timezone import make_aware
 from treebeard.mp_tree import MP_Node
 
 
@@ -204,11 +204,12 @@ class EditableListModel(BaseDomainModel):
     value_2 = models.CharField("Value 2", max_length=100, )
 
     class Meta:
-        verbose_name = _("Editable list model")
-        verbose_name_plural = _("Editable list models")
+        verbose_name = _("Editable list item")
+        verbose_name_plural = _("Editable list items")
 
     def __str__(self):
         return self.name
+
 
 class QuickSearchModel(BaseDomainModel):
     name = models.CharField("Name", max_length=100, )
@@ -220,9 +221,11 @@ class QuickSearchModel(BaseDomainModel):
     def __str__(self):
         return self.name
 
+
 class ReorderModel(BaseDomainModel):
     name = models.CharField("Name", max_length=100, )
     order_by = models.PositiveIntegerField(default=0, blank=False, null=False)
+
     class Meta:
         verbose_name = _("Item")
         verbose_name_plural = _("Items")

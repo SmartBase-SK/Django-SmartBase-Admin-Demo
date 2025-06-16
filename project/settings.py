@@ -4,6 +4,7 @@ INSTALLED_APPS = (
         [
             "project",
             "project.catalog.apps.CatalogConfig",
+            "ckeditor_uploader"
         ]
         + COMMON_INSTALLED_APPS
 )
@@ -29,3 +30,6 @@ if CONTAINER_TYPE != 'celery' and ENVIRONMENT != 'dev':
             },
         }
     }
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_BASEPATH = STATIC_URL+"ckeditor/ckeditor/"
