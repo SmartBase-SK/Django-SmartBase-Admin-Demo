@@ -23,7 +23,7 @@ if CONTAINER_TYPE != 'celery' and ENVIRONMENT != 'dev':
             "PASSWORD": os.environ.get("READ_ONLY_POSTGRES_PASSWORD"),
             "HOST": "pgbouncer-redonly",
             "PORT": os.environ.get("POSTGRES_PORT"),
-            "CONN_MAX_AGE": None,
+            "CONN_MAX_AGE": 60,
             "DISABLE_SERVER_SIDE_CURSORS": True,
             "TEST": {
                 "NAME": os.environ.get("POSTGRES_DB"),

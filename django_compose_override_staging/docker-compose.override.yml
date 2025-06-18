@@ -21,7 +21,7 @@ services:
       - "5433"
     environment:
       - LISTEN_PORT=5432
-      - POOL_MODE=session
+      - POOL_MODE=transaction
       - DB_HOST=db
       - DB_PORT=5432
       - DB_NAME=smartshop
