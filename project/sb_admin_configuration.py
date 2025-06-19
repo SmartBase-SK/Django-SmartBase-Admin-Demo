@@ -98,6 +98,7 @@ admin_menu_items = [
     SBAdminMenuItem(view_id="catalog_editablelistmodel", label="Editable List View", icon="Edit"),
     SBAdminMenuItem(view_id="catalog_reordermodel", url='/sb-admin/catalog_reordermodel/action_enter_reorder/template', label="Reorder List View", icon="Sort-amount-down"),
     SBAdminMenuItem(view_id="catalog_purchase", label="Advanced filters", icon="Filter"),
+    SBAdminMenuItem(view_id="catalog_listactionmodel", label="List actions", icon="Lightning"),
     SBAdminMenuItem(view_id="catalog_category", label="Tree Widget", icon="Sort-amount-down"),
     SBAdminMenuItem(view_id="catalog_quicksearchmodel", label="Quick search", icon="Find"),
     SBAdminMenuItem(url=f'{reverse("redirect_to_last_product_tab")}?{urlencode({"tab": ""})}', label="Tabs", icon="Minus-the-top"),

@@ -15,6 +15,7 @@ from django_smartbase_admin.admin.admin_base import (
     SBAdminTableInline, SBAdminStackedInline,
 )
 from django_smartbase_admin.admin.site import sb_admin_site
+from django_smartbase_admin.engine.actions import SBAdminCustomAction
 from django_smartbase_admin.engine.const import (
     DETAIL_STRUCTURE_RIGHT_CLASS, FilterVersions,
 )
@@ -22,10 +23,10 @@ from django_smartbase_admin.engine.fake_inline import (
     SBAdminFakeInlineMixin,
 )
 from django_smartbase_admin.engine.field import SBAdminField
-from django_smartbase_admin.engine.filter_widgets import SBAdminTreeFilterWidget
+from django_smartbase_admin.services.xlsx_export import SBAdminXLSXExportService
 from django_smartbase_admin.utils import render_notifications
 
-from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem, EditableListModel, QuickSearchModel, ReorderModel
+from .models import Product, Category, Manufacturer, ProductImage, Purchase, PurchaseItem, EditableListModel, QuickSearchModel, ReorderModel, ListActionModel
 from .sb_admin_forms import ProductCategoryTreeInlineForm
 from .sb_admin_widgets import CategoryTreeWidget, CategoryTreeFilterWidget
 
@@ -467,3 +468,78 @@ class ReorderModelSBAdmin(SBAdmin):
                 "fields": ["name"]
             },
         )]
+
+
+@admin.register(ListActionModel, site=sb_admin_site)
+class ListActionModelSBAdmin(SBAdmin):
+    def export_action(self, request, modifier) -> HttpResponse:
+        data = [{"Demo": "demo"}]
+
+        columns = [{"field": k, "title": k} for k in data[0].keys()] if data else []
+
+        return SBAdminXLSXExportService.create_workbook_http_respone(
+            file_name="Demo_export.xlsx",
+            data=data,
+            columns=columns,
+            options={"header_rows_count": 1},
+        )
+
+    model = ReorderModel
+    sbadmin_list_display = ["name"]
+    search_fields = ["name"]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["name"]
+            },
+        )]
+
+    def get_sbadmin_list_actions(self, request):
+        return [
+            SBAdminCustomAction(
+                title=_("Single action"),
+                view=self,
+                action_id="export_action",
+            ),
+            SBAdminCustomAction(
+                title=_("Single action with icon"),
+                view=self,
+                icon="Lightning",
+                action_id="export_action",
+            ),
+            SBAdminCustomAction(
+                title="Dropdown actions",
+                icon="Excel-one",
+                sub_actions=[
+                    SBAdminCustomAction(
+                        title=_("Action without icon"),
+                        view=self,
+                        action_id="export_action",
+                    ),
+                    SBAdminCustomAction(
+                        title=_("Action with icon"),
+                        icon="Calendar",
+                        view=self,
+                        action_id="export_action",
+                    ),
+                ],
+            ),
+            SBAdminCustomAction(
+                title="Dropdown actions with icon",
+                icon="Printer",
+                sub_actions=[
+                    SBAdminCustomAction(
+                        title=_("Action without icon"),
+                        view=self,
+                        action_id="export_action",
+                    ),
+                    SBAdminCustomAction(
+                        title=_("Action with icon"),
+                        icon="Calendar",
+                        view=self,
+                        action_id="export_action",
+                    ),
+                ],
+            ),
+        ]

@@ -232,3 +232,13 @@ class ReorderModel(BaseDomainModel):
 
     def __str__(self):
         return self.name
+
+class ListActionModel(BaseDomainModel):
+    name = models.CharField("Name", max_length=100, )
+
+    class Meta:
+        verbose_name = _("Item")
+        verbose_name_plural = _("Items")
+
+    def __str__(self):
+        return self.name

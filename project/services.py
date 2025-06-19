@@ -14,7 +14,7 @@ from project.catalog.models import (
     Product,
     ProductImage,
     Purchase,
-    PurchaseItem, EditableListModel, QuickSearchModel, ReorderModel,
+    PurchaseItem, EditableListModel, QuickSearchModel, ReorderModel, ListActionModel,
 )
 
 
@@ -41,6 +41,7 @@ def generate_dummy(full=True):
         EditableListModel.objects.all().delete()
         QuickSearchModel.objects.all().delete()
         ReorderModel.objects.all().delete()
+        ListActionModel.objects.all().delete()
 
         domain_1 = Domain.objects.create(name="www.domain1.com")
         domain_2 = Domain.objects.create(name="www.domain2.com")
@@ -72,6 +73,10 @@ def generate_dummy(full=True):
                     name=f"Item {i} - {domain.name}",
                 )
                 ReorderModel.objects.create(
+                    domain=domain,
+                    name=f"Item {i} - {domain.name}",
+                )
+                ListActionModel.objects.create(
                     domain=domain,
                     name=f"Item {i} - {domain.name}",
                 )
