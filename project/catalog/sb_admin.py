@@ -35,6 +35,7 @@ class ProductImageInline(SBAdminTableInline):
     model = ProductImage
     fields = ("image", "alt_text")
     extra = 1
+    sb_admin_add_modal = True
 
 
 def button_formatter(object_id, value):
@@ -258,10 +259,10 @@ class ProductSBAdmin(SBAdmin):
     def get_image(self, object_id, value=None, **kwargs):
         product = Product.objects.prefetch_related("images").get(pk=object_id)
         first_image = product.images.first()
-
+        image_url = first_image.image.url if first_image else ""
         return mark_safe(
             f'<div class="catalog-image w-40 h-40 border border-dark-200 rounded-xs overflow-hidden">'
-            f'<img src="{first_image.image.url}" width="40" height="40" /></div>'
+            f'<img src="{image_url}" width="40" height="40" /></div>'
         )
 
 
@@ -466,6 +467,17 @@ class ReorderModelSBAdmin(SBAdmin):
             None,
             {
                 "fields": ["name"]
+            },
+        )]
+@admin.register(ProductImage, site=sb_admin_site)
+class ProductImageSBAdmin(SBAdmin):
+    model = ProductImage
+    sbadmin_list_display = ["image"]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["product","image","alt_text"]
             },
         )]
 

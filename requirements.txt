@@ -79,7 +79,7 @@ django-htmx==1.23.0
     # via django-smartbase-admin
 django-js-asset==2.2.0
     # via django-ckeditor
-django-nested-admin==4.0.2
+django-nested-admin==4.1.1
     # via django-smartbase-admin
 django-polymorphic==3.1.0
     # via django-filer
@@ -89,7 +89,7 @@ django-redis==5.2.0
     # via project (pyproject.toml)
 django-sekizai==4.1.0
     # via project (pyproject.toml)
-django-smartbase-admin==1.0.5
+django-smartbase-admin==1.0.6b3
     # via project (pyproject.toml)
 django-treebeard==4.7.1
     # via project (pyproject.toml)

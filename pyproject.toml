@@ -8,7 +8,7 @@ dependencies = [
     "django-post-office~=3.7.0",
     # temporary dependency, waiting for new release
     "django-dynamic-preferences@git+https://github.com/agateblue/django-dynamic-preferences.git@69f585b793e33de38ec678b5e56491c42ddf6f64",
-    "django-smartbase-admin==1.0.5",
+    "django-smartbase-admin==1.0.6b3",
     "django-redis~=5.2.0",
     "redis~=4.5.5",
     "psutil~=5.9.5",

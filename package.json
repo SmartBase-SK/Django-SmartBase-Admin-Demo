@@ -1,9 +1,9 @@
 {
   "name": "SmartBaseShop",
   "scripts": {
-    "dev": "gulp svg-sprites && webpack --watch --config sbcore/templates_tw/static/build/webpack.dev.js",
-    "dev-old": "webpack --watch --config sbcore/static/build/webpack.dev.js",
-    "build": "gulp svg-sprites && webpack --progress --config sbcore/templates_tw/static/build/webpack.prod.js",
+    "dev": "gulp svg-sprites && webpack --watch --config project/static/build/webpack.dev.js",
+    "dev-old": "webpack --watch --config project/static/build/webpack.dev.js",
+    "build": "gulp svg-sprites && webpack --progress --config project/static/build/webpack.prod.js",
     "build-with-dev-tools": "webpack --config sbcore/templates_tw/static/build/webpack.prod.js && gulp svg-sprites",
     "build-iconset": "node sbcore/templates_tw/static/build/build_iconset.js",
     "gulp-build": "echo 'no gulp build'",
