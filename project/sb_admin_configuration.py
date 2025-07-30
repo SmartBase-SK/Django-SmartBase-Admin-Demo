@@ -1,15 +1,15 @@
 from django import forms
-from django.db.models import Sum, Count, F
+from django.db.models import Sum, Count
 from django.urls import reverse
 from django.utils.http import urlencode
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from django_smartbase_admin.admin.widgets import SBAdminRadioWidget
+from django_smartbase_admin.admin.admin_base import SBAdminBaseFormInit
+from django_smartbase_admin.admin.widgets import SBAdminRadioDropdownWidget
 from django_smartbase_admin.engine.configuration import (
     SBAdminRoleConfiguration,
     SBAdminConfigurationBase,
 )
-from django_smartbase_admin.engine.const import FilterVersions, GLOBAL_FILTER_DATA_KEY
+from django_smartbase_admin.engine.const import GLOBAL_FILTER_DATA_KEY
 from django_smartbase_admin.engine.dashboard import (
     SBAdminDashboardLineChartWidgetByDate,
     SBAdminDashboardListWidget,
@@ -19,18 +19,19 @@ from django_smartbase_admin.engine.field import SBAdminField
 from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
 from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
 
-from project.catalog.models import Purchase, Domain, BaseDomainModel, Product
+from project.catalog.models import Purchase, Domain, BaseDomainModel
 
 EDITOR_ROLE = "Editors"
 
 
-class GlobalFilterForm(forms.Form):
+class GlobalFilterForm(SBAdminBaseFormInit, forms.Form):
     include_all_values_for_empty_fields = ["domain"]
     domain = forms.ModelChoiceField(
         queryset=Domain.objects.all(),
         required=False,
         blank=True,
-        widget=SBAdminRadioWidget(attrs={"id": "DOMAIN_FILTER"}),
+        widget=SBAdminRadioDropdownWidget(attrs={"id": "DOMAIN_FILTER"}),
+        label=_("Choose domain"),
         empty_label="All domains",
     )
 
