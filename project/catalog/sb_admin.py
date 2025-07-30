@@ -347,6 +347,7 @@ class QuickSearchModelSBAdmin(SBAdmin):
     model = QuickSearchModel
     sbadmin_list_display = ["name"]
     search_fields = ["name"]
+    filters_version = FilterVersions.FILTERS_VERSION_2
     fieldsets = [
         (
             None,

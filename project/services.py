@@ -61,7 +61,7 @@ def generate_dummy(full=True):
 
     for domain in all_domains:
         if full:
-            for i in range(1, 6):
+            for i in range(1, 1500):
                 EditableListModel.objects.create(
                     name=f"Item {i} - {domain.name}",
                     domain=domain,
