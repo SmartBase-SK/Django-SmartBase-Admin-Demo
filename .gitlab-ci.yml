@@ -63,12 +63,6 @@ deployProduction:
     - echo "Project template version || $PROJECT_TEMPLATE_VERSION" >> version.txt
     - echo "Project name || $CI_PROJECT_NAME" >> version.txt
 
-    # Pokračuj podľa pôvodného flowu
-    - if  [ -n "$BUILD_SCRIPTS_VERSION" ]; then
-          git clone --depth 1 --single-branch --branch $BUILD_SCRIPTS_VERSION https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop-build-scripts.git;
-      else
-          git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop-build-scripts.git;
-      fi
     - source ./smartshop-build-scripts/pre_deploy.sh
     - source ./smartshop-build-scripts/deploy_production.sh
 #    - source ./smartshop-build-scripts/build_documentation.sh
