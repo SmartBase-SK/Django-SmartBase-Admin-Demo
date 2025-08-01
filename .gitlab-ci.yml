@@ -2,7 +2,7 @@ image: python:3.6
 
 variables:
   XDG_CACHE_HOME: "xdg-cache"
-  DJANGO_COMPOSE_VERSION: ""
+  DJANGO_COMPOSE_VERSION: "demo"
   CORE_VERSION: ""
   BUILD_SCRIPTS_VERSION: "demo"
 
