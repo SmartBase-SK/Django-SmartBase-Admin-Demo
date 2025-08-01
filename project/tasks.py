@@ -1,7 +1,7 @@
 from celery.schedules import crontab
 
 from project.services import generate_dummy
-from sbcore.config.celery import app
+from project.config.celery import app
 
 
 @app.task(name="send_revision_notifications_task")

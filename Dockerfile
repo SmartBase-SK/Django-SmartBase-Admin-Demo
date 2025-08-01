@@ -4,7 +4,6 @@ RUN apt-get update -y
 
 # Add requirements
 ADD ./requirements.txt /srv/django_project/requirements.txt
-ADD ./sbcore/requirements.txt /srv/django_project/sbcore/requirements.txt
 
 # Install packages
 RUN apt-get -o Acquire::Check-Valid-Until=false update -y && apt-get install -y gettext vim supervisor
