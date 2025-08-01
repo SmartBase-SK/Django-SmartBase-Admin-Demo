@@ -41,9 +41,9 @@ deployProduction:
     - mkdir -p django_project/sbcore
     - touch django_project/sbcore/requirements.txt
     - rsync -avzc --no-o --no-g -e "ssh -p $SSH_PORT" ./django_compose_override_prod/ $DEPLOY_SERVER_LOGIN:"/home/gitlab/$CI_PROJECT_NAME/";
-    # Fake forked app files to prevent CI crash
-    - touch project/catalog/dynamic_preferences_registry.py
-    - touch project/catalog/product_tags.py
+
+    # Prevent fix_forked_apps from running
+    - rm -f sbcore/common/management/commands/fix_forked_apps.py || true
 
     - source ./smartshop-build-scripts/build_code.sh
     - source ./smartshop-build-scripts/pre_deploy.sh
