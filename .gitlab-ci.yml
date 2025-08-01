@@ -27,49 +27,24 @@ deployProduction:
     - STAGING_SERVER=prime.smartbase.sk
     - USE_DOCKERGEN=0
     - DEPLOY_SERVER_LOGIN="gitlab@primelocal.smartbase.sk"
-
-    # Klonovanie šablóny projektu
-    - |
-      if [ -n "$PROJECT_TEMPLATE_VERSION" ]; then
-        git clone --depth 1 --single-branch --branch $PROJECT_TEMPLATE_VERSION https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop_template.git;
-      else
-        git clone --depth 1 --single-branch https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop_template.git;
-      fi
-    - mv smartshop_template django_smartshop
-
-    # Presun základných súborov
-    - mv django_smartshop/merge_packages.py merge_packages.py || true
-    - mv django_smartshop/.coveragerc .coveragerc || true
-    - rm -rf django_smartshop
-
-    # Merge requirements
-    - python3 merge_packages.py
-
-    # Logovanie verzie
-    - echo "Latest deploy time || $(date --iso-8601=seconds)" >> version.txt
-    - echo "Project template version || $PROJECT_TEMPLATE_VERSION" >> version.txt
-    - echo "Project name || $CI_PROJECT_NAME" >> version.txt
-
-    # Pokračuj podľa pôvodného flowu
     - if  [ -n "$BUILD_SCRIPTS_VERSION" ]; then
           git clone --depth 1 --single-branch --branch $BUILD_SCRIPTS_VERSION https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop-build-scripts.git;
       else
           git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop-build-scripts.git;
       fi
-
     - source ./smartshop-build-scripts/ssh_setup.sh
     - source ./smartshop-build-scripts/variable_setup.sh
     - PROJECT_DEPLOY_DOMAIN='sbadmin.sbdev.sk'
     - PROJECT_DEPLOY_PORT=$VIRTUAL_PORT
-
     - source ./smartshop-build-scripts/sync_django_compose.sh "ENVIRONMENT=production" "ALLOWED_HOSTS=$PROJECT_DEPLOY_DOMAIN" "PROJECT_DEPLOY_DOMAIN=$PROJECT_DEPLOY_DOMAIN" "READ_ONLY_POSTGRES_USER=$READ_ONLY_POSTGRES_USER" "READ_ONLY_POSTGRES_PASSWORD=$READ_ONLY_POSTGRES_PASSWORD" "IS_MINIMAL_DJANGO_PROJECT=1"
-
     - rsync -avzc --no-o --no-g -e "ssh -p $SSH_PORT" ./django_compose_override_prod/ $DEPLOY_SERVER_LOGIN:"/home/gitlab/$CI_PROJECT_NAME/";
-
-    # (Tu by bol pôvodne build_code.sh – už si ho nahradil vyššie)
-
+    - mkdir -p django_project/nginx
+    - mkdir -p django_project/sbcore
+    - touch django_project/sbcore/requirements.txt
+    - source ./smartshop-build-scripts/build_code.sh
     - source ./smartshop-build-scripts/pre_deploy.sh
     - source ./smartshop-build-scripts/deploy_production.sh
+#    - source ./smartshop-build-scripts/build_documentation.sh
     - source ./smartshop-build-scripts/post_deploy.sh
   tags:
     - runner
