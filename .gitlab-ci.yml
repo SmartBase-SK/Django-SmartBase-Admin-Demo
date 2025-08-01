@@ -22,6 +22,8 @@ stages:
 deployProduction:
   stage: deploy
   script:
+    - mkdir -p sbcore
+    - touch sbcore/requirements.txt
     - export READ_ONLY_POSTGRES_USER=readonly_user
     - export READ_ONLY_POSTGRES_PASSWORD=readonly_password
     - STAGING_SERVER=prime.smartbase.sk
@@ -37,12 +39,9 @@ deployProduction:
     - PROJECT_DEPLOY_DOMAIN='sbadmin.sbdev.sk'
     - PROJECT_DEPLOY_PORT=$VIRTUAL_PORT
     - source ./smartshop-build-scripts/sync_django_compose.sh "ENVIRONMENT=production" "ALLOWED_HOSTS=$PROJECT_DEPLOY_DOMAIN" "PROJECT_DEPLOY_DOMAIN=$PROJECT_DEPLOY_DOMAIN" "READ_ONLY_POSTGRES_USER=$READ_ONLY_POSTGRES_USER" "READ_ONLY_POSTGRES_PASSWORD=$READ_ONLY_POSTGRES_PASSWORD" "IS_MINIMAL_DJANGO_PROJECT=1"
-    - mkdir -p django_project/nginx
-    - mkdir -p django_project/sbcore
-    - touch django_project/sbcore/requirements.txt
+
     - rsync -avzc --no-o --no-g -e "ssh -p $SSH_PORT" ./django_compose_override_prod/ $DEPLOY_SERVER_LOGIN:"/home/gitlab/$CI_PROJECT_NAME/";
-    - mkdir -p django_project/sbcore
-    - touch django_project/sbcore/requirements.txt
+
     - source ./smartshop-build-scripts/build_code.sh
 
     - source ./smartshop-build-scripts/pre_deploy.sh
