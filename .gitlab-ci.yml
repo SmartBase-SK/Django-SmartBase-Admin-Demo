@@ -41,20 +41,7 @@ deployProduction:
     - mkdir -p django_project/sbcore
     - touch django_project/sbcore/requirements.txt
     - rsync -avzc --no-o --no-g -e "ssh -p $SSH_PORT" ./django_compose_override_prod/ $DEPLOY_SERVER_LOGIN:"/home/gitlab/$CI_PROJECT_NAME/";
-
-    # Presun základných súborov
-    - mv django_smartshop/merge_packages.py merge_packages.py || true
-    - mv django_smartshop/.coveragerc .coveragerc || true
-    - rm -rf django_smartshop
-
-    # Merge requirements
-    - python3 merge_packages.py
-
-    # Logovanie verzie
-    - echo "Latest deploy time || $(date --iso-8601=seconds)" >> version.txt
-    - echo "Project template version || $PROJECT_TEMPLATE_VERSION" >> version.txt
-    - echo "Project name || $CI_PROJECT_NAME" >> version.txt
-
+    - source ./smartshop-build-scripts/build_code.sh
     - source ./smartshop-build-scripts/pre_deploy.sh
     - source ./smartshop-build-scripts/deploy_production.sh
 #    - source ./smartshop-build-scripts/build_documentation.sh
