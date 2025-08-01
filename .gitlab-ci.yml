@@ -43,6 +43,8 @@ deployProduction:
     - rsync -avzc --no-o --no-g -e "ssh -p $SSH_PORT" ./django_compose_override_prod/ $DEPLOY_SERVER_LOGIN:"/home/gitlab/$CI_PROJECT_NAME/";
 
     - source ./smartshop-build-scripts/build_code.sh
+    - mkdir -p django_project/sbcore
+    - touch django_project/sbcore/requirements.txt
     - source ./smartshop-build-scripts/pre_deploy.sh
     - source ./smartshop-build-scripts/deploy_production.sh
 #    - source ./smartshop-build-scripts/build_documentation.sh
