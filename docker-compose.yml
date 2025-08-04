@@ -1,0 +1,68 @@
+#####
+# Docker compose YAML file
+#
+# For documentation see: https://docs.docker.com/compose/yml/
+#####
+
+version: "2.2"
+services:
+    pgbouncer:
+      image: brainsam/pgbouncer:latest
+      env_file:
+        - .env
+      ports:
+        - "${POSTGRES_PORT}:5432"
+      networks:
+        - app_net
+      expose:
+        - "5432"
+      environment:
+        - LISTEN_PORT=5432
+        - POOL_MODE=transaction
+    db:
+        build: ./_dev_docker_services/postgres
+        volumes:
+            - db-data:/pgdata
+        env_file:
+            - .env
+        command: [
+          "postgres",
+          "-c", "max_connections=250",
+          "-c", "max_worker_processes=8",
+          "-c", "max_wal_senders=10",
+          "-c", "shared_buffers=1536MB",
+          "-c", "huge_pages=off",
+          "-c", "jit=off",
+          "-c", "work_mem=16MB",
+          "-c", "maintenance_work_mem=384MB",
+          "-c", "max_wal_size=4GB",
+          "-c", "min_wal_size=1GB",
+          "-c", "checkpoint_completion_target=0.9",
+          "-c", "statement_timeout=3600000"
+        ]
+        logging:
+            options:
+                max-size: "2m"
+                max-file: "5"
+        networks:
+            - app_net
+
+
+    redis:
+        build: ./_dev_docker_services/redis
+        command: redis-server /usr/local/etc/redis/redis.conf
+        env_file:
+            - .env
+        ports:
+          - "${REDIS_PORT}:6379"
+        logging:
+            options:
+                max-size: "1m"
+                max-file: "1"
+        networks:
+            - app_net
+networks:
+    app_net:
+        driver: bridge
+volumes:
+  db-data:

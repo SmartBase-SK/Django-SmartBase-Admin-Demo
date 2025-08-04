@@ -1,0 +1,17 @@
+.gitlab-ci.yml merge=ours
+
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Always normalize and convert
+# to LF line endings
+*.py text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.js text eol=lf
+*.conf text eol=lf
+*.txt text eol=lf
+*.sh text eol=lf
+*.bashrc text eol=lf
+bashrc text eol=lf

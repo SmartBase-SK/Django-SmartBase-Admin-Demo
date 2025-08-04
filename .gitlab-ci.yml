@@ -1,0 +1,56 @@
+image: python:3.6
+
+variables:
+  XDG_CACHE_HOME: "xdg-cache"
+  DJANGO_COMPOSE_VERSION: "demo"
+  CORE_VERSION: ""
+  BUILD_SCRIPTS_VERSION: "demo"
+
+cache:
+  paths:
+    - node_modules
+    - xdg-cache
+    - apt-cache
+    - pip-cache
+  key: "$CI_COMMIT_REF_SLUG"
+
+stages:
+  - test
+  - analysis
+  - deploy
+
+deployProduction:
+  stage: deploy
+  script:
+    - mkdir -p sbcore
+    - touch sbcore/requirements.txt
+    - export READ_ONLY_POSTGRES_USER=readonly_user
+    - export READ_ONLY_POSTGRES_PASSWORD=readonly_password
+    - STAGING_SERVER=prime.smartbase.sk
+    - USE_DOCKERGEN=0
+    - DEPLOY_SERVER_LOGIN="gitlab@primelocal.smartbase.sk"
+    - if  [ -n "$BUILD_SCRIPTS_VERSION" ]; then
+          git clone --depth 1 --single-branch --branch $BUILD_SCRIPTS_VERSION https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop-build-scripts.git;
+      else
+          git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.smartbase.sk/dev/smartshop-build-scripts.git;
+      fi
+    - source ./smartshop-build-scripts/ssh_setup.sh
+    - source ./smartshop-build-scripts/variable_setup.sh
+    - PROJECT_DEPLOY_DOMAIN='sbadmin.sbdev.sk'
+    - PROJECT_DEPLOY_PORT=$VIRTUAL_PORT
+    - source ./smartshop-build-scripts/sync_django_compose.sh "ENVIRONMENT=production" "ALLOWED_HOSTS=$PROJECT_DEPLOY_DOMAIN" "PROJECT_DEPLOY_DOMAIN=$PROJECT_DEPLOY_DOMAIN" "READ_ONLY_POSTGRES_USER=$READ_ONLY_POSTGRES_USER" "READ_ONLY_POSTGRES_PASSWORD=$READ_ONLY_POSTGRES_PASSWORD" "IS_MINIMAL_DJANGO_PROJECT=1"
+
+    - rsync -avzc --no-o --no-g -e "ssh -p $SSH_PORT" ./django_compose_override_prod/ $DEPLOY_SERVER_LOGIN:"/home/gitlab/$CI_PROJECT_NAME/";
+
+    - source ./smartshop-build-scripts/build_code.sh
+
+    - source ./smartshop-build-scripts/pre_deploy.sh
+    - source ./smartshop-build-scripts/deploy_production.sh
+#    - source ./smartshop-build-scripts/build_documentation.sh
+    - source ./smartshop-build-scripts/post_deploy.sh
+  tags:
+    - runner
+  environment:
+    name: production
+    url: http://$PROJECT_DEPLOY_DOMAIN
+  when: manual

@@ -1,0 +1,5 @@
+network.host: 0.0.0.0
+http.cors.enabled: true
+http.cors.allow-origin: /https?:\/\/.*/
+node.name: 'elasticsearch'
+cluster.initial_master_nodes: ['elasticsearch']

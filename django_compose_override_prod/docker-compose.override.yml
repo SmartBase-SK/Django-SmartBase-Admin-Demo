@@ -1,0 +1,33 @@
+version: "2.2"
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - ./data/pgdata-15:/pgdata
+      - ./data/logs/db:/pg_log
+      - ./db_backups:/db_backups
+
+  pgbouncer-redonly:
+    restart: "unless-stopped"
+    image: brainsam/pgbouncer:latest
+    env_file:
+      - ./config/environment/development.env
+    networks:
+      - app_net
+    ports:
+      - "5433:5432"
+    expose:
+      - "5433"
+    environment:
+      - LISTEN_PORT=5432
+      - POOL_MODE=transaction
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=smartshop
+      - DB_USER=readonly_user
+      - DB_PASSWORD=readonly_password
+    logging:
+      options:
+        max-size: "2m"
+        max-file: "5"
